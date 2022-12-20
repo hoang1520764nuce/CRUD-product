@@ -1,8 +1,8 @@
 /* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Product } from './Products/entities/product.entity';
-import { ProductModule } from './Products/product.module';
+import { Product } from './products/entities/product.entity';
+import { ProductModule } from './products/product.module';
 import { ProductDetail } from './product_detail/entities/product_detail.entity';
 import { ProductDetailModule } from './product_detail/product_detail.module';
 import { CategoryModule } from './category/category.module';
