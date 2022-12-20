@@ -3,14 +3,14 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from './products/entities/product.entity';
 import { ProductModule } from './products/product.module';
-import { ProductDetail } from './product_detail/entities/product_detail.entity';
-import { ProductDetailModule } from './product_detail/product_detail.module';
-import { CategoryModule } from './category/category.module';
-import { CategoryDetailModule } from './category_detail/category_detail.module';
-import { ProductCategoryModule } from './product_category/product_category.module';
-import { ProductCategory } from './product_category/entities/product_category.entity';
-import { Category } from './category/entities/category.entity';
-import { CategoryDetail } from './category_detail/entities/category_detail.entity';
+import { ProductDetail } from './product_details/entities/product_detail.entity';
+import { ProductDetailModule } from './product_details/product_detail.module';
+import { CategoryModule } from './categories/category.module';
+import { CategoryDetailModule } from './category_details/category_detail.module';
+import { ProductCategoryModule } from './product_categories/product_category.module';
+import { ProductCategory } from './product_categories/entities/product_category.entity';
+import { Category } from './categories/entities/category.entity';
+import { CategoryDetail } from './category_details/entities/category_detail.entity';
 
 
 @Module({

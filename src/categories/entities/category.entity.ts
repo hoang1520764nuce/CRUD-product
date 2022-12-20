@@ -1,6 +1,6 @@
 
-import { CategoryDetail } from "src/category_detail/entities/category_detail.entity";
-import { ProductCategory } from "src/product_category/entities/product_category.entity";
+import { CategoryDetail } from "src/category_details/entities/category_detail.entity";
+import { ProductCategory } from "src/product_categories/entities/product_category.entity";
 import { Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()

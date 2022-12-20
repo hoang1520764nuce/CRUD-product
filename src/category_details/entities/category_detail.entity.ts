@@ -1,4 +1,4 @@
-import { Category } from "src/category/entities/category.entity"
+import { Category } from "src/categories/entities/category.entity"
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm"
 
 @Entity()
