@@ -10,5 +10,5 @@ export class Category {
     @OneToMany(type => ProductCategory, productCategory => productCategory.catagory_key)
     @OneToMany(type => CategoryDetail, categoryDetail => categoryDetail.category_key)
     @JoinColumn()
-    key:ProductCategory|CategoryDetail
+    key:ProductCategory[]|CategoryDetail[];
 }
