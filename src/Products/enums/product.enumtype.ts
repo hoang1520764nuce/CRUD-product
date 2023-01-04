@@ -9,12 +9,12 @@ export enum ProductType {
     name: 'ProductType',
   });   
 
- export enum TaxStatus {
+ export enum ProductTaxStatus {
    TAXABLE = 'taxable',
    NONE = 'none'
  } 
 
- registerEnumType(TaxStatus, {
+ registerEnumType(ProductTaxStatus, {
     name: 'TaxStatus',
   }); 
 

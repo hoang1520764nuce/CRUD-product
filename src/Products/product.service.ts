@@ -1,49 +1,65 @@
-import { Injectable } from "@nestjs/common/decorators";
-import { InjectRepository } from "@nestjs/typeorm";
-import { CreateCategoryDto } from "src/categories/dto/create-category.dto";
-import { ProductCategory } from "src/product_categories/entities/product_category.entity";
-import { ProductDetail } from "src/product_details/entities/product_detail.entity";
-import { Repository } from "typeorm";
-import { updateProductDto } from "./dto/update-product.dto";
-import { Product } from "./entities/product.entity";
+import { HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable } from '@nestjs/common/decorators';
+import { InjectRepository } from '@nestjs/typeorm';
+import { paginate } from 'nestjs-typeorm-paginate';
+
+import { Repository } from 'typeorm';
+import { CreateProductDto } from './dto/create-product.dto';
+import { ProductPagenationDto } from './dto/product-pagenation.dto';
+import { updateProductDto } from './dto/update-product.dto';
+import { Product } from './entities/product.entity';
 
 @Injectable()
 export class productService {
-        
-        constructor(
-            @InjectRepository(Product)
-            private productRepository : Repository<Product>){}
+  constructor(
+    @InjectRepository(Product)
+    private productRepository: Repository<Product>,
+  ) {}
 
-          async  createProduct(CreateProductDto: CreateCategoryDto)
-          {
-            return await this.productRepository.save(CreateProductDto);
-          };
+  async createProduct(CreateProductDto: CreateProductDto) {
+    const product = await this.productRepository.save(CreateProductDto);
+    return this.productRepository.findOne({
+      where: { id: product.id },
+    });
+  }
 
-          async updateProduct(  id  :   string ,   updateProductDto : updateProductDto  ){
-       
-            return await this.productRepository.update({id},updateProductDto);
-                // {type: updateProductDto.type,
-                //     status :updateProductDto.status,
-                //     is_featured : updateProductDto.is_featured,
-                //     tax_status : updateProductDto.tax_status
-                // });
-             
-          };
+  async updateProduct(id: string, updateProductDto: updateProductDto) {
+    const product = await this.productRepository.findOneBy({ id: id });
+    if (!product)
+      throw new HttpException('cannot find the product', HttpStatus.NOT_FOUND);
+    else await this.productRepository.update({ id }, updateProductDto);
+    product.type = updateProductDto.type;
+    product.status = updateProductDto.status;
+    product.isfeatured = updateProductDto.isFeatured;
+    product.taxStatus = updateProductDto.taxStatus;
 
-          async softDeleteProduct(id:string){
-                return await this.productRepository.softDelete(id);
-          };
+    return product;
+  }
 
+  async softDeleteProduct(id: string) {
+    const product = await this.productRepository.findOneBy({ id: id });
+    if (!product)
+      throw new HttpException('cannot find the product', HttpStatus.NOT_FOUND);
+    else await this.productRepository.softDelete(id);
+  }
 
-          async  findAll():Promise<Product[]>{
-                return  await this.productRepository.find();
-            };
+  async findAll(dto :ProductPagenationDto) {
+   
+    const page = dto.page;
+    const limit = dto.limit;
+    const productQueryBuilder = await this.productRepository.createQueryBuilder('product');
+   
+    return paginate(productQueryBuilder, { limit, page });
+   
+   
+  }
 
-            async findOne(id:string){
-                const product = await this.productRepository.findOne({
-                    where : {id},
-                });
-                return product;
-            };
-           
-        }
+  async findOne(id: string) {
+    const product = await this.productRepository.findOne({
+      where: { id },
+    });
+    if (!product)
+      throw new HttpException('cannot find the product', HttpStatus.NOT_FOUND);
+    else return product;
+  }
+}

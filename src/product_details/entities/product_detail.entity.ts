@@ -6,8 +6,9 @@ export class ProductDetail {
     @PrimaryGeneratedColumn()
     @ManyToOne(() => Product)
     @JoinColumn({name:'product_id', referencedColumnName: 'id'} )
-    product_id : Product
-
+    product_id : string
+    product:Product;
+    
     @Column()
     lang:string
 

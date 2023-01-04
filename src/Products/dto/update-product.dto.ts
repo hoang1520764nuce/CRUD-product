@@ -1,9 +1,19 @@
-import { ProductStatus, ProductType, TaxStatus } from "../enums/product.enumtype";
+import { IsEnum } from "class-validator";
+//import { IsBoolean } from "class-validator/types/decorator/decorators";
+import { ProductStatus, ProductTaxStatus, ProductType } from "../enums/product.enumtype";
 
 export class updateProductDto {
-   
-    type:ProductType;
-    status : ProductStatus;
-    is_featured: boolean;
-    tax_status : TaxStatus
+    
+    @IsEnum({enum: ProductType, require: true})
+    readonly type:ProductType
+    
+    @IsEnum({enum: ProductStatus, require: true})
+    readonly status:ProductStatus
+
+  //  @IsBoolean()
+    readonly isFeatured:boolean
+
+  
+    @IsEnum({enum: ProductTaxStatus, require: true})
+    readonly taxStatus:ProductTaxStatus 
 }

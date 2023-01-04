@@ -13,6 +13,7 @@ import { Category } from './categories/entities/category.entity';
 import { CategoryDetail } from './category_details/entities/category_detail.entity';
 
 
+
 @Module({
   imports: [
     TypeOrmModule.forRoot({
