@@ -1,5 +1,5 @@
 import { IsEnum } from 'class-validator';
-//import { IsBoolean } from 'class-validator/types/decorator/decorators';
+import { IsBoolean } from 'class-validator';
 import {
   ProductStatus,
   ProductTaxStatus,
@@ -8,12 +8,12 @@ import {
 
 export class CreateProductDto {
   @IsEnum(ProductType)
-  readonly type: ProductType;
+  readonly type: ProductType ;
 
   @IsEnum(ProductStatus)
   readonly status: ProductStatus;
 
-  //@IsBoolean()
+  @IsBoolean()
   readonly isFeatured: boolean;
 
   @IsEnum(ProductTaxStatus)

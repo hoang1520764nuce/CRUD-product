@@ -1,22 +1,24 @@
 import { Column, DeleteDateColumn, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { ProductDetail } from "src/product_details/entities/product_detail.entity";
-import { ProductCategory } from "src/product_categories/entities/product_category.entity";
+import { ProductDetail } from "src/product-details/entities/product-detail.entity";
+//import { ProductCategory } from "src/product-categories/entities/product-category.entity";
 import { ProductStatus, ProductType, ProductTaxStatus } from "../enums/product.enumtype";
 
 
 
 @Entity()
-export class Product {
+export class Product   {
 
+  // @OneToMany(() => ProductCategory, productCategory =>productCategory.product_id )
+  // productCategory : ProductCategory[];
     
     @PrimaryGeneratedColumn()
-    @OneToMany(()=>ProductDetail,productDetail=>productDetail.product)
-    @OneToMany(() => ProductCategory, productCategory =>productCategory.product_id )
-    @JoinColumn()
     id:string;
-
+    
+    //join product-details
+    @OneToMany(()=>ProductDetail,productDetail=>productDetail.product)
+    @JoinColumn()
     productDetail : ProductDetail[];
-    productCategory : ProductCategory[];
+    //end join
 
 @Column({ type : 'enum', enum: ProductType })
 type:ProductType;

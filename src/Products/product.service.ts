@@ -2,6 +2,8 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { Injectable } from '@nestjs/common/decorators';
 import { InjectRepository } from '@nestjs/typeorm';
 import { paginate } from 'nestjs-typeorm-paginate';
+import { CreateProductDetailDto } from 'src/product-details/dto/create-product-detail.dto';
+import { ProductDetail } from 'src/product-details/entities/product-detail.entity';
 
 import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -14,14 +16,19 @@ export class productService {
   constructor(
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
+
   ) {}
 
-  async createProduct(CreateProductDto: CreateProductDto) {
-    const product = await this.productRepository.save(CreateProductDto);
-    return this.productRepository.findOne({
-      where: { id: product.id },
-    });
+  async createProduct(dto: CreateProductDto ) {
+    const product =  this.productRepository.create(dto);
+    // const product = await this.productRepository.save(CreateProductDto);
+    // return this.productRepository.findOne({
+    //   where: { id: product.id },
+    // });  
+    return product;
   }
+
+ 
 
   async updateProduct(id: string, updateProductDto: updateProductDto) {
     const product = await this.productRepository.findOneBy({ id: id });
@@ -41,20 +48,21 @@ export class productService {
     if (!product)
       throw new HttpException('cannot find the product', HttpStatus.NOT_FOUND);
     else await this.productRepository.softDelete(id);
+
+   
   }
 
-  async findAll(dto :ProductPagenationDto) {
-   
+  async findAll(dto: ProductPagenationDto) {
     const page = dto.page;
     const limit = dto.limit;
-    const productQueryBuilder = await this.productRepository.createQueryBuilder('product');
-   
+    const productQueryBuilder =  this.productRepository.createQueryBuilder(
+      'product',
+    );
+
     return paginate(productQueryBuilder, { limit, page });
-   
-   
   }
 
-  async findOne(id: string) {
+  async findById(id: string) {
     const product = await this.productRepository.findOne({
       where: { id },
     });
@@ -62,4 +70,6 @@ export class productService {
       throw new HttpException('cannot find the product', HttpStatus.NOT_FOUND);
     else return product;
   }
+
+  
 }

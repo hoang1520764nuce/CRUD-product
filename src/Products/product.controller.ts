@@ -14,14 +14,37 @@ import { updateProductDto } from './dto/update-product.dto';
 import { PaginationResponse } from 'src/common/decorators/pagination-response.decorator';
 import { Product } from './entities/product.entity';
 import { ProductPagenationDto } from './dto/product-pagenation.dto';
+import { CreateProductDetailDto } from 'src/product-details/dto/create-product-detail.dto';
+import { ProductDetailsService } from 'src/product-details/product-details.service';
 @Controller('product')
 export class productController {
-  constructor(private productService: productService) {}
+
+  // constructor(
+  //   private productService: productService,
+  //   
+  // ) {}
+
+  constructor(
+    private productService: productService,
+    private productDetailService: ProductDetailsService,
+  ) {}
 
   @Post()
-  createProduct(@Body() body: CreateProductDto) {
-    return this.productService.createProduct(body);
+  async createProduct(
+    @Body() body: CreateProductDto,
+    @Body() body1: CreateProductDetailDto,
+  ) {
+    const product = await this.productService.createProduct(body);
+    const productDetail = this.productDetailService.create(body1, product.id);
+    return productDetail;
   }
+
+  // @Post()
+  //  createProduct(@Body() body: CreateProductDto) {
+  //    const product =  this.productService.createProduct(body);
+  //
+  //    return product;
+  //  }
 
   @Get()
   @PaginationResponse(Product)
@@ -31,7 +54,7 @@ export class productController {
 
   @Get(':id')
   getOne(@Param('id') id: string) {
-    return this.productService.findOne(id);
+    return this.productService.findById(id);
   }
 
   @Put(':id')
