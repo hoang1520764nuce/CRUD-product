@@ -11,23 +11,39 @@ import { Category } from './categories/entities/category.entity';
 import { ProductDetailsModule } from './product-details/product-details.module';
 import { ProductDetail } from './product-details/entities/product-detail.entity';
 
+import { DataSource } from 'typeorm';
+import { addTransactionalDataSource } from 'typeorm-transactional';
+
 
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host:'localhost',
-      port : 5433 ,
-      username : 'postgres',
-      password : '123123' ,
-      database : 'product',
-      entities:[Product,ProductDetail,Category],
-      autoLoadEntities:true,
-      synchronize:true,   
-    }),
+    TypeOrmModule.forRootAsync(
+      {
+        useFactory(){
+          return {
+            type: 'postgres',
+            host:'localhost',
+            port : 5433 ,
+            username : 'postgres',
+            password : '123123' ,
+            database : 'product',
+            entities:[Product,ProductDetail,Category],
+            autoLoadEntities:true,
+            synchronize:true,   
+          };
+        },
+        async dataSourceFactory(options) {
+          if (!options) {
+            throw new Error('Invalid options passed');
+          }
+
+          return addTransactionalDataSource(new DataSource(options));
+        },
+      }
+    ),
     ProductModule,
-   
+    
     CategoryModule,   
      ProductDetailsModule
     ],

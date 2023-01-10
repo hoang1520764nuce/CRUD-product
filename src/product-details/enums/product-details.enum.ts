@@ -1,12 +1,10 @@
-import { registerEnumType } from "@nestjs/graphql";
+import { registerEnumType } from '@nestjs/graphql';
 
 export enum ProductDetailsLanguage {
-    ENGLISH = 'english',
-    SPANISH = 'spanish',
-    FRENCH = 'french',
-    GERMAN = 'german',
+  ENGLISH = 'eng',
+  VIETNAM = 'vn',
 }
 
 registerEnumType(ProductDetailsLanguage, {
-    name: 'ProductDetailsLanguage',
-  });   
+  name: 'ProductDetailsLanguage',
+});

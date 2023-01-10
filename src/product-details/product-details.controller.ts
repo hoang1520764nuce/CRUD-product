@@ -41,6 +41,7 @@ export class ProductDetailsController {
     @Param('id') id: string,
     @Body() updateProductDetailDto: UpdateProductDetailDto,
   ) {
+    
     return this.productDetailsService.update(+id, updateProductDetailDto);
   }
 

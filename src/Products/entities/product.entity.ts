@@ -2,11 +2,12 @@ import { Column, DeleteDateColumn, Entity, JoinColumn, OneToMany, PrimaryGenerat
 import { ProductDetail } from "src/product-details/entities/product-detail.entity";
 //import { ProductCategory } from "src/product-categories/entities/product-category.entity";
 import { ProductStatus, ProductType, ProductTaxStatus } from "../enums/product.enumtype";
+import { BaseEntity } from "src/common/entities/base.entity";
 
 
 
 @Entity()
-export class Product   {
+export class Product extends BaseEntity   {
 
   // @OneToMany(() => ProductCategory, productCategory =>productCategory.product_id )
   // productCategory : ProductCategory[];
@@ -17,7 +18,7 @@ export class Product   {
     //join product-details
     @OneToMany(()=>ProductDetail,productDetail=>productDetail.product)
     @JoinColumn()
-    productDetail : ProductDetail[];
+    productDetails : ProductDetail[];
     //end join
 
 @Column({ type : 'enum', enum: ProductType })
@@ -27,11 +28,10 @@ type:ProductType;
 status:ProductStatus
 
 @Column({ default: true, name :'is_featured' })  
-isfeatured:boolean
+isFeatured:boolean
 
 @Column({ type : 'enum' , enum: ProductTaxStatus, name: 'tax_status'})
 taxStatus:ProductTaxStatus 
 
-@DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz' })
-  deletedAt: Date;
+
 }

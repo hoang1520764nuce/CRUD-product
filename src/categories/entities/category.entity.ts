@@ -1,9 +1,10 @@
 //import { CategoryDetail } from "src/category_details/entities/category_detail.entity";
 //import { ProductCategory } from "src/product_categories/entities/product_category.entity";
+import { BaseEntity } from 'src/common/entities/base.entity';
 import { Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Category {
+export class Category  extends BaseEntity {
     //  @OneToMany(type => ProductCategory, productCategory => productCategory.catagory_key)
     // @OneToMany(type => CategoryDetail, categoryDetail => categoryDetail.category_key)
     //  @JoinColumn()
