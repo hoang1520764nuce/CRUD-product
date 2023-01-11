@@ -1,13 +1,13 @@
 import { Product } from "src/products/entities/product.entity";
-import { BaseEntity, Column, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 import { Category } from "./category.entity";
-
+@Entity()
 export class ProductCategory extends BaseEntity {
-    @Column({ name : 'product_id'})
-    ProductId:string
+    @PrimaryColumn({ name : 'product_id'})
+    productId:string
 
-    @Column({ name : 'category_key'})
-    CategoryKey:string
+    @PrimaryColumn({ name : 'category_key'})
+    categoryKey:string
 
     // join product
     @ManyToOne( ()=> Product , product=> product.productCategories)

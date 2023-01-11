@@ -1,25 +1,21 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsString } from "class-validator";
+import { langCategoryDetailEnum } from "../enums/category-detail.enum";
 
-export class CreateCategoryDetailReqDto {
+export class CategoryDetailReqDto {
 
     @IsString()
-    @ApiProperty( { name : 'category_key' , default : '1'})
     categoryKey : string
 
     @IsString()
-    @ApiProperty( { name : 'lang' , default : 'eng'})
-    lang : string
+    lang : langCategoryDetailEnum;
 
-    @IsString()
-    @ApiProperty( { name : 'desc' , default : 'homethings'})
+    @IsString() 
     desc : string
 
-    @IsString()
-    @ApiProperty( { name : 'name' , default : 'fan'})
+    @IsString()  
     name : string
 
     @IsString()
-    @ApiProperty( { name : 'slug' , default : '1'})
     slug : string
     }   

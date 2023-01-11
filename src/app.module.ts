@@ -13,6 +13,8 @@ import { ProductDetail } from './product-details/entities/product-detail.entity'
 
 import { DataSource } from 'typeorm';
 import { addTransactionalDataSource } from 'typeorm-transactional';
+import { CategoryDetail } from './categories/entities/category-detail.entity';
+import { ProductCategory } from './categories/entities/product-category.entity';
 
 
 
@@ -28,7 +30,7 @@ import { addTransactionalDataSource } from 'typeorm-transactional';
             username : 'postgres',
             password : '123123' ,
             database : 'product',
-            entities:[Product,ProductDetail,Category],
+            entities:[Product,ProductDetail,Category,CategoryDetail,ProductCategory],
             autoLoadEntities:true,
             synchronize:true,   
           };

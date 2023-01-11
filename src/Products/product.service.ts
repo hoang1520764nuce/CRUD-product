@@ -98,7 +98,6 @@ export class productService {
     const productQueryBuilder = this.productRepository
       .createQueryBuilder('product')
       .leftJoinAndSelect('product.productDetails', 'product_detail');
-    //.andWhere('product_detail.product_id = :id', { id: product.id });
 
     return paginate(productQueryBuilder, { limit, page });
   }
@@ -145,14 +144,7 @@ export class productService {
     const productDetails = await this.productDetailRepository.findBy({
       productId: In(ids),
     });
-    productDetails.forEach((productDetail) => {
-      if (!productDetail)
-        throw new HttpException(
-          'cannot find the product',
-          HttpStatus.NOT_FOUND,
-        );
-    });
-
+   
     await this.productRepository.softDelete(ids);
     await this.productDetailRepository.softRemove(productDetails);
   }
