@@ -4,12 +4,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { paginate } from 'nestjs-typeorm-paginate';
 import { ProductDetail } from 'src/product-details/entities/product-detail.entity';
 import { Transactional } from 'typeorm-transactional';
-import { Repository, TransactionAlreadyStartedError } from 'typeorm';
-import { CreateProductDto } from './dto/create-product.dto';
-import { ProductPagenationDto } from './dto/product-pagenation.dto';
-import { updateProductDto } from './dto/update-product.dto';
+import { In, Repository, TransactionAlreadyStartedError } from 'typeorm';
+import { CreateProductDto } from './dtos/create-product.dto';
+import { ProductPagenationDto } from './dtos/product-pagenation.dto';
+import { updateProductDto } from './dtos/update-product.dto';
 import { Product } from './entities/product.entity';
-import { UpdateProductDetailDto } from 'src/product-details/dto/update-product-detail.dto';
+import { UpdateProductDetailDto } from 'src/product-details/dtos/update-product-detail.dto';
+import { DeleteListProductReqDto } from './dtos/delete-list-product.dto';
 
 @Injectable()
 export class productService {
@@ -50,9 +51,10 @@ export class productService {
   @Transactional()
   async updateProduct(id: string, dto: updateProductDto) {
     const { updateProductDetailDto } = dto;
-    const exitsProduct = await this.productRepository.findOne( {where :{ id: id }
-      ,
-    relations : { productDetails : true }});
+    const exitsProduct = await this.productRepository.findOne({
+      where: { id: id },
+      relations: { productDetails: true },
+    });
     if (!exitsProduct)
       throw new HttpException('cannot find the product', HttpStatus.NOT_FOUND);
     else return this.updateProductDetail(exitsProduct, updateProductDetailDto);
@@ -90,13 +92,6 @@ export class productService {
     await this.productDetailRepository.save(updateProductDetail);
   }
 
-  async softDeleteProduct(id: string) {
-    const product = await this.productRepository.findOneBy({ id: id });
-    if (!product)
-      throw new HttpException('cannot find the product', HttpStatus.NOT_FOUND);
-    else await this.productRepository.softDelete(id);
-  }
-
   async findAll(dto: ProductPagenationDto) {
     const page = dto.page;
     const limit = dto.limit;
@@ -111,12 +106,54 @@ export class productService {
   async findById(id: string) {
     const product = await this.productRepository.findOne({
       where: { id },
-      relations : { productDetails : true}
+      relations: { productDetails: true },
     });
     if (!product)
       throw new HttpException('cannot find the product', HttpStatus.NOT_FOUND);
     else return product;
   }
 
-  
+  @Transactional()
+  async softDeleteProduct(id: string) {
+    const product = await this.productRepository.findOneBy({ id: id });
+    if (!product)
+      throw new HttpException('cannot find the product', HttpStatus.NOT_FOUND);
+    else await this.productRepository.softDelete(id);
+
+    const productDetai = await this.productDetailRepository.findOneBy({
+      productId: product.id,
+    });
+    if (!productDetai) {
+      throw new HttpException(
+        'cannot find the detail of product',
+        HttpStatus.NOT_FOUND,
+      );
+    } else await this.productDetailRepository.softRemove(productDetai);
+  }
+
+  async softDeleteListProduct(dto: DeleteListProductReqDto) {
+    const { ids } = dto;
+    const products = await this.productRepository.findBy({ id: In(ids) });
+    products.forEach((product) => {
+      if (!product)
+        throw new HttpException(
+          'cannot find the product',
+          HttpStatus.NOT_FOUND,
+        );
+    });
+
+    const productDetails = await this.productDetailRepository.findBy({
+      productId: In(ids),
+    });
+    productDetails.forEach((productDetail) => {
+      if (!productDetail)
+        throw new HttpException(
+          'cannot find the product',
+          HttpStatus.NOT_FOUND,
+        );
+    });
+
+    await this.productRepository.softDelete(ids);
+    await this.productDetailRepository.softRemove(productDetails);
+  }
 }

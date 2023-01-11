@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum } from 'class-validator';
 import { IsBoolean } from 'class-validator';
-import { CreateProductDetailDto } from 'src/product-details/dto/create-product-detail.dto';
+import { CreateProductDetailDto } from 'src/product-details/dtos/create-product-detail.dto';
 import {
   ProductStatus,
   ProductTaxStatus,

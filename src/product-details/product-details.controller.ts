@@ -10,12 +10,12 @@ import {
   Put,
 } from '@nestjs/common';
 import { ProductDetailsService } from './product-details.service';
-import { CreateProductDetailDto } from './dto/create-product-detail.dto';
-import { UpdateProductDetailDto } from './dto/update-product-detail.dto';
+import { CreateProductDetailDto } from './dtos/create-product-detail.dto';
+import { UpdateProductDetailDto } from './dtos/update-product-detail.dto';
 import { Product } from 'src/products/entities/product.entity';
 import { ProductDetail } from './entities/product-detail.entity';
 import { PaginationResponse } from 'src/common/decorators/pagination-response.decorator';
-import { ProductPagenationDto } from 'src/products/dto/product-pagenation.dto';
+import { ProductPagenationDto } from 'src/Products/dtos/product-pagenation.dto';
 
 @Controller('product-details')
 export class ProductDetailsController {
@@ -26,27 +26,27 @@ export class ProductDetailsController {
   //   return this.productDetailsService.create(createProductDetailDto);
   // }
 
-  @Get()
-  @PaginationResponse(ProductDetail)
-  findAll(@Query() query: ProductPagenationDto) {
-    return this.productDetailsService.findAll(query);
-  }
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productDetailsService.findOne(+id);
-  }
+  // @Get()
+  // @PaginationResponse(ProductDetail)
+  // findAll(@Query() query: ProductPagenationDto) {
+  //   return this.productDetailsService.findAll(query);
+  // }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.productDetailsService.findOne(+id);
+  // }
 
-  @Put(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateProductDetailDto: UpdateProductDetailDto,
-  ) {
-    
-    return this.productDetailsService.update(+id, updateProductDetailDto);
-  }
+  // @Put(':id')
+  // update(
+  //   @Param('id') id: string,
+  //   @Body() updateProductDetailDto: UpdateProductDetailDto,
+  // ) {
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productDetailsService.remove(+id);
-  }
+  //   return this.productDetailsService.update(+id, updateProductDetailDto);
+  // }
+
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.productDetailsService.remove(+id);
+  // }
 }

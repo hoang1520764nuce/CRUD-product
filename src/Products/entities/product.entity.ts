@@ -3,6 +3,7 @@ import { ProductDetail } from "src/product-details/entities/product-detail.entit
 //import { ProductCategory } from "src/product-categories/entities/product-category.entity";
 import { ProductStatus, ProductType, ProductTaxStatus } from "../enums/product.enumtype";
 import { BaseEntity } from "src/common/entities/base.entity";
+import { ProductCategory } from "src/categories/entities/product-category.entity";
 
 
 
@@ -21,6 +22,12 @@ export class Product extends BaseEntity   {
     productDetails : ProductDetail[];
     //end join
 
+    //join product-categories
+    @OneToMany(()=>ProductCategory,productCategory=>productCategory.product)
+    @JoinColumn()
+    productCategories : ProductCategory[];
+    //end join
+    
 @Column({ type : 'enum', enum: ProductType })
 type:ProductType;
 

@@ -3,9 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { paginate } from 'nestjs-typeorm-paginate';
 import { Product } from 'src/products/entities/product.entity';
 import { Repository } from 'typeorm';
-import { CreateProductDetailDto } from './dto/create-product-detail.dto';
-import { ProductDetailPagenationDto } from './dto/product-detail-pagenation.dto';
-import { UpdateProductDetailDto } from './dto/update-product-detail.dto';
+import { CreateProductDetailDto } from './dtos/create-product-detail.dto';
+import { ProductDetailPagenationDto } from './dtos/product-detail-pagenation.dto';
+import { UpdateProductDetailDto } from './dtos/update-product-detail.dto';
 import { ProductDetail } from './entities/product-detail.entity';
 
 @Injectable()
@@ -18,8 +18,8 @@ export class ProductDetailsService {
     private productRepo: Repository<Product>,
   ) {}
 
-  async create(dto: CreateProductDetailDto, productId : string) {
-    const {  lang, name, description, shortDescription, slug } = dto;
+  async create(dto: CreateProductDetailDto, productId: string) {
+    const { lang, name, description, shortDescription, slug } = dto;
     const productDetail = this.productDetailRepo.create({
       productId,
       lang,
