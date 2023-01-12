@@ -23,9 +23,7 @@ export class ProductDetail  extends BaseEntity {
     @Column()
     slug:string
 
-    @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz' })
-    deletedAt: Date;
-
+   
     //join product
     @ManyToOne( ()=> Product , product=> product.productDetails) 
     @JoinColumn( { name :'product_id' })

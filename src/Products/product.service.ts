@@ -97,7 +97,7 @@ export class productService {
     const limit = dto.limit;
     const productQueryBuilder = this.productRepository
       .createQueryBuilder('product')
-      .leftJoinAndSelect('product.productDetails', 'product_detail');
+      .leftJoinAndSelect('product.productDetails', 'ProductDetail');
 
     return paginate(productQueryBuilder, { limit, page });
   }

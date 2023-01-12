@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -36,7 +37,7 @@ export class productController {
     return this.productService.findById(id);
   }
 
-  @Put('updateProductBy:id')
+  @Patch('updateProductBy:id')
   updateProduct(@Param('id') id: string, @Body() body: updateProductDto) {
     return this.productService.updateProduct(id, body);
   }

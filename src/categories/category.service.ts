@@ -34,7 +34,7 @@ export class CategoryService {
     const category = this.categoryRepository.create();
     await this.categoryRepository.save(category);
 
-    const createCategoryDetailDto = categoryDetailReqDto.map((inputed) =>
+    const CategoryDetail = categoryDetailReqDto.map((inputed) =>
       this.categoryDetailRepository.create({
         categoryKey: category.key,
         lang: inputed.lang,
@@ -44,8 +44,8 @@ export class CategoryService {
       }),
     );
 
-    await this.categoryDetailRepository.save(createCategoryDetailDto);
-    category.categoryDetails = createCategoryDetailDto;
+    await this.categoryDetailRepository.save(CategoryDetail);
+    category.categoryDetails = CategoryDetail;
     return category;
   }
 
@@ -91,16 +91,16 @@ export class CategoryService {
   async findAll(dto: CategoryPagenationDto) {
     const page = dto.page;
     const limit = dto.limit;
-    const categoryQueryBuilder = this.categoryRepository
+    const CategoryQB = this.categoryRepository
       .createQueryBuilder('category')
-      .leftJoinAndSelect('category.categoryDetails', 'category_detail');
+      .leftJoinAndSelect('category.categoryDetails', 'CategoryDetail');
 
-    return paginate(categoryQueryBuilder, { limit, page });
+    return paginate(CategoryQB, { limit, page });
   }
 
   async findById(key: string) {
     const category = await this.categoryRepository.findOne({
-      where: { key },
+      where: { key: key },
       relations: { categoryDetails: true },
     });
     if (!category)
@@ -149,15 +149,25 @@ export class CategoryService {
     await this.categoryDetailRepository.softRemove(categoryDetails);
   }
 
-
-  // product-category 
-  async createProductCategory( dto : ProductCategoryReqDto) {
-    const { categoryKey, productId} = dto ;
+  // product-category
+  async createProductCategory(dto: ProductCategoryReqDto) {
+    const { categoryKey, productId } = dto;
     const productCategory = this.productCategoryRepository.create({
-      categoryKey ,
-      productId 
-    })
-    return await this.productCategoryRepository.save(productCategory)
+      categoryKey,
+      productId,
+    });
+    return await this.productCategoryRepository.save(productCategory);
+  }
 
+  async deleteProductCategory(categoryKey: string, productId: string) {
+    const productCategory = await this.productCategoryRepository.findOne({
+      where: { categoryKey, productId },
+    });
+    if (!productCategory)
+      throw new HttpException(
+        'cannot find the productCategory',
+        HttpStatus.NOT_FOUND,
+      );
+    else await this.productCategoryRepository.softRemove(productCategory);
   }
 }

@@ -3,41 +3,56 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
+import { Patch } from '@nestjs/common/decorators';
+
+import { PaginationResponse } from 'src/common/decorators/pagination-response.decorator';
 import { CategoryService } from './category.service';
+import { CategoryPagenationDto } from './dtos/category-pagenation.dto';
+import { CreateCategoryReqDto, UpdateCategoryReqDto } from './dtos/category.dto';
+import { deleteListCategoryRepDto } from './dtos/delete-list-category.dto';
+import { Category } from './entities/category.entity';
 
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
-  // @Post()
-  // create(@Body() createCategoryDto: CreateCategoryDto) {
-  //   return this.categoryService.create(createCategoryDto);
-  // }
+  @Post('createCategory')
+  create(@Body() createCategoryDto: CreateCategoryReqDto) {
+    return this.categoryService.createCategory(createCategoryDto);
+  }
 
-  // @Get()
-  // findAll() {
-  //   return this.categoryService.findAll();
-  // }
+  @Get('getAllCategory')
+  @PaginationResponse(Category)
+  findAll(@Query() query: CategoryPagenationDto) {
+    return this.categoryService.findAll(query);
+  }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.categoryService.findOne(+id);
-  // }
+  @Get('getOneCategory:key')
+  findOne(@Param('key') key: string) {
+    return this.categoryService.findById(key);
+  }
 
-  // @Patch(':id')
-  // update(
-  //   @Param('id') id: string,
-  //   @Body() updateCategoryDto: UpdateCategoryDto,
-  // ) {
-  //   return this.categoryService.update(+id, updateCategoryDto);
-  // }
+  @Patch('updateCategory:key')
+  update(
+    @Param('key') key: string,
+    @Body() updateCategoryDto: UpdateCategoryReqDto,
+  ) {
+    return this.categoryService.updateCategory(key, updateCategoryDto);
+  }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.categoryService.remove(+id);
-  // }
+  @Delete('deleteCategory:key')
+  remove(@Param('key') key: string) {
+    return this.categoryService.deleteCategory(key);
+  }
+
+  @Delete('deleteListCategory')
+  removeList(@Body() dto : deleteListCategoryRepDto)
+  {
+    return this.categoryService.deleteListCategory( dto );
+  }
 }

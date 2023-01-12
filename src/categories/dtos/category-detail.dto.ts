@@ -1,13 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString } from "class-validator";
+import { IsEnum, IsString } from "class-validator";
 import { langCategoryDetailEnum } from "../enums/category-detail.enum";
 
 export class CategoryDetailReqDto {
 
-    @IsString()
+    @IsString( )
     categoryKey : string
 
-    @IsString()
+    @IsEnum(langCategoryDetailEnum)
     lang : langCategoryDetailEnum;
 
     @IsString() 

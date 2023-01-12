@@ -1,11 +1,10 @@
-import { BaseEntity, PrimaryGeneratedColumn, OneToMany, JoinColumn, Column, PrimaryColumn, Entity } from "typeorm";
+import { BaseEntity, PrimaryGeneratedColumn, OneToMany, JoinColumn, Column, PrimaryColumn, Entity, ManyToOne } from "typeorm";
 import { langCategoryDetailEnum } from "../enums/category-detail.enum";
 import { Category } from "./category.entity";
-import { ProductCategory } from "./product-category.entity";
 @Entity()
 export class CategoryDetail extends BaseEntity {
 
-  @Column({name : 'category_key'})
+  @PrimaryColumn({name : 'category_key'})
   categoryKey: string;
 
   @PrimaryColumn()
@@ -21,8 +20,8 @@ export class CategoryDetail extends BaseEntity {
   slug : string
 
   //join in category
-  @OneToMany(() => Category, (category) => category.categoryDetails)
-  @JoinColumn()
+  @ManyToOne(() => Category, category => category.categoryDetails)
+  @JoinColumn( { name :'category_key' } )
   category: Category ;
   //end join
 
