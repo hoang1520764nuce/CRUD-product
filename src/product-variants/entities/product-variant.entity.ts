@@ -1,9 +1,10 @@
 import { BaseEntity } from "src/common/entities/base.entity";
 import { Column, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { ProductToAttribute } from "./product-to-attribute.entity";
 import { ProductToVariant } from "./product-to-variant.entity";
 import { ProductVariantImage } from "./product-variant-image.entity";
 
-@Entity( { name : 'product_variant'})
+@Entity()
 export class ProductVariant  extends BaseEntity{
     @PrimaryGeneratedColumn()
     id : string
@@ -34,4 +35,9 @@ export class ProductVariant  extends BaseEntity{
     @JoinColumn()
     productVariantImages : ProductVariantImage[];
     // end join
+
+    //join productToAttribute
+    @OneToMany( () => ProductToAttribute , productToAttribute => productToAttribute.productVariant)
+    @JoinColumn()
+    productToAttributes : ProductToAttribute[];
 }

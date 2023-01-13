@@ -1,9 +1,9 @@
 import { BaseEntity } from "src/common/entities/base.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { ProductAttributeTerm } from "./product-attribute-term.entity";
 import { ProductVariant } from "./product-variant.entity";
 
-@Entity( { name : 'product_to_attribute' })
+@Entity()
 export class ProductToAttribute extends BaseEntity {
 
     @PrimaryGeneratedColumn( { name : 'id'})
@@ -17,10 +17,12 @@ export class ProductToAttribute extends BaseEntity {
 
     //join productAttributeTerm
     @ManyToOne( () => ProductAttributeTerm , productAttributeTerm => productAttributeTerm.productToAttributes)
+    @JoinColumn( { name : 'product_attribute_term_id'})
     productAttributeTerm : ProductAttributeTerm
 
     // join productVariant
     @ManyToOne( () => ProductVariant , productVariant => productVariant.productToVariants)
+    @JoinColumn( { name : 'product_variant_id'})
     productVariant : ProductVariant
     // end join
     

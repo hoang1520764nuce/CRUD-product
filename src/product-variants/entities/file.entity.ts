@@ -1,8 +1,9 @@
 import { BaseEntity } from "src/common/entities/base.entity";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { FileEnum } from "../enums/file.enum";
+import { ProductVariantImage } from "./product-variant-image.entity";
 
-@Entity( { name : 'file'})
+@Entity()
 export class File  extends BaseEntity{ 
 
     @PrimaryGeneratedColumn( { name : 'id'})
@@ -22,4 +23,9 @@ export class File  extends BaseEntity{
 
     @Column( { name : 'uploaderId'})
     uploaderId : string
+
+    // join productVariantImage
+    @OneToMany( type => ProductVariantImage , productVariantImage => productVariantImage.file)
+    productVariantImages : ProductVariantImage[]
+    
 }

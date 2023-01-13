@@ -19,8 +19,6 @@ import { ProductToVariant } from 'src/product-variants/entities/product-to-varia
 
 @Entity({ name: 'product' })
 export class Product extends BaseEntity {
-  // @OneToMany(() => ProductCategory, productCategory =>productCategory.product_id )
-  // productCategory : ProductCategory[];
 
   @PrimaryGeneratedColumn()
   id: string;

@@ -1,9 +1,10 @@
 import { BaseEntity } from "src/common/entities/base.entity";
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { ProductAttributeTermDetail } from "./product-attribute-term-detail.entity";
 import { ProductAttribute } from "./product-attribute.entity";
 import { ProductToAttribute } from "./product-to-attribute.entity";
 
-Entity( { name : 'product_attribute_term'})
+@Entity()
 export class ProductAttributeTerm  extends BaseEntity{
 
     @PrimaryGeneratedColumn( { name : 'id'})
@@ -18,9 +19,13 @@ export class ProductAttributeTerm  extends BaseEntity{
 
     // join productAttribute
     @ManyToOne( () => ProductAttribute , productAttribute => productAttribute.productAttributeTerms)
+    @JoinColumn(    { name : 'product_attribute_key' }  )
     productAttribute : ProductAttribute
 
-    
+    // join productAttributeTermDetail
+    @OneToMany( () => ProductAttributeTermDetail , productAttributeTermDetail => productAttributeTermDetail.productAttributeTerm)
+    productAttributeTermDetails : ProductAttributeTermDetail[]
+
 
    
 }
