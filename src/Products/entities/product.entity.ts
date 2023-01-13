@@ -4,6 +4,7 @@ import { ProductDetail } from "src/product-details/entities/product-detail.entit
 import { ProductStatus, ProductType, ProductTaxStatus } from "../enums/product.enumtype";
 import { BaseEntity } from "src/common/entities/base.entity";
 import { ProductCategory } from "src/categories/entities/product-category.entity";
+import { ProductToVariant } from "src/product-variants/entities/product-to-variant.entity";
 
 
 
@@ -16,17 +17,7 @@ export class Product extends BaseEntity   {
     @PrimaryGeneratedColumn()
     id:string;
     
-    //join product-details
-    @OneToMany(()=>ProductDetail,productDetail=>productDetail.product)
-    @JoinColumn()
-    productDetails : ProductDetail[];
-    //end join
-
-    //join product-categories
-    @OneToMany(()=>ProductCategory,productCategory=>productCategory.product)
-    @JoinColumn()
-    productCategories : ProductCategory[];
-    //end join
+    
     
 @Column({ type : 'enum', enum: ProductType })
 type:ProductType;
@@ -40,5 +31,21 @@ isFeatured:boolean
 @Column({ type : 'enum' , enum: ProductTaxStatus, name: 'tax_status'})
 taxStatus:ProductTaxStatus 
 
+//join product-details
+@OneToMany(()=>ProductDetail,productDetail=>productDetail.product)
+@JoinColumn()
+productDetails : ProductDetail[];
+//end join
 
+//join product-categories
+@OneToMany(()=>ProductCategory,productCategory=>productCategory.product)
+@JoinColumn()
+productCategories : ProductCategory[];
+//end join
+
+// join productToVariant
+@OneToMany(()=>ProductToVariant,productToVariant=>productToVariant.product)
+@JoinColumn()
+productToVariants : ProductToVariant[];
+// end join
 }

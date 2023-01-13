@@ -19,4 +19,19 @@ export class CreateCategoryReqDto {
   categoryDetailReqDto: CategoryDetailReqDto[];
 }
 
-export class UpdateCategoryReqDto extends PartialType(CreateCategoryReqDto) {}
+export class UpdateCategoryReqDto  {
+  @ApiProperty({
+    type: [CategoryDetailReqDto],
+    isArray: true,
+    default: [
+      {
+        lang: 'eng',
+        desc: 'homethings',
+        name: 'fan',
+        slug: '1',
+      },
+    ],
+  })
+  @IsObject({ each: true })
+  categoryDetailReqDto: CategoryDetailReqDto[];
+}

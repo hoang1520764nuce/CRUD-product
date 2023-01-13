@@ -15,6 +15,9 @@ import { DataSource } from 'typeorm';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 import { CategoryDetail } from './categories/entities/category-detail.entity';
 import { ProductCategory } from './categories/entities/product-category.entity';
+import { ProductVariantsModule } from './product-variants/product-variants.module';
+import { ProductVariant } from './product-variants/entities/product-variant.entity';
+import { ProductToVariant } from './product-variants/entities/product-to-variant.entity';
 
 
 
@@ -30,7 +33,7 @@ import { ProductCategory } from './categories/entities/product-category.entity';
             username : 'postgres',
             password : '123123' ,
             database : 'product',
-            entities:[Product,ProductDetail,Category,CategoryDetail,ProductCategory],
+            entities:[Product,ProductDetail,Category,CategoryDetail,ProductCategory,ProductVariant,ProductToVariant ],
             autoLoadEntities:true,
             synchronize:true,   
           };
@@ -44,10 +47,7 @@ import { ProductCategory } from './categories/entities/product-category.entity';
         },
       }
     ),
-    ProductModule,
-    
-    CategoryModule,   
-     ProductDetailsModule
+    ProductModule, CategoryModule, ProductDetailsModule, ProductVariantsModule
     ],
 
 })

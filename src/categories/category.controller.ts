@@ -3,13 +3,11 @@ import {
   Get,
   Post,
   Body,
-  Put,
   Param,
   Delete,
   Query,
 } from '@nestjs/common';
 import { Patch } from '@nestjs/common/decorators';
-
 import { PaginationResponse } from 'src/common/decorators/pagination-response.decorator';
 import { CategoryService } from './category.service';
 import { CategoryPagenationDto } from './dtos/category-pagenation.dto';

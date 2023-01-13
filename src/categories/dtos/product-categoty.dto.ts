@@ -1,12 +1,12 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsString } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString } from 'class-validator';
 
 export class ProductCategoryReqDto {
-    @IsString()
-    @ApiProperty({name : 'category_key' , default : '1'})
-    categoryKey : string;
+  @IsString()
+  @ApiProperty({ default: '1', name: 'product_id' })
+  productId: string;
 
-    @IsString()
-    @ApiProperty({name : 'product_id' , default : '1'})
-    productId : string;
+  @IsString()
+  @ApiProperty({ default: '1', name: 'category_key' })
+  categoryKey: string;
 }

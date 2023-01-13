@@ -1,6 +1,8 @@
-import { BaseEntity, PrimaryGeneratedColumn, OneToMany, JoinColumn, Column, PrimaryColumn, Entity, ManyToOne } from "typeorm";
+import {  JoinColumn, Column, PrimaryColumn, Entity, ManyToOne } from "typeorm";
 import { langCategoryDetailEnum } from "../enums/category-detail.enum";
 import { Category } from "./category.entity";
+import { BaseEntity } from 'src/common/entities/base.entity';
+
 @Entity()
 export class CategoryDetail extends BaseEntity {
 
