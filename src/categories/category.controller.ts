@@ -8,6 +8,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { Patch } from '@nestjs/common/decorators';
+import { ApiTags } from '@nestjs/swagger';
 import { PaginationResponse } from 'src/common/decorators/pagination-response.decorator';
 import { CategoryService } from './category.service';
 import { CategoryPagenationDto } from './dtos/category-pagenation.dto';
@@ -16,6 +17,7 @@ import { deleteListCategoryRepDto } from './dtos/delete-list-category.dto';
 import { Category } from './entities/category.entity';
 
 @Controller('category')
+@ApiTags('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 

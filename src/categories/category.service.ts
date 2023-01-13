@@ -10,21 +10,14 @@ import {
   UpdateCategoryReqDto,
 } from './dtos/category.dto';
 import { deleteListCategoryRepDto } from './dtos/delete-list-category.dto';
-import { deleteListProductCategoryRepDto } from './dtos/delete-list-product-category.dto';
-import { ProductCategoryPagenationDto } from './dtos/product-category-pagenation.dto';
-import { ProductCategoryReqDto } from './dtos/product-categoty.dto';
 import { CategoryDetail } from './entities/category-detail.entity';
 import { Category } from './entities/category.entity';
-import { ProductCategory } from './entities/product-category.entity';
 
 @Injectable()
 export class CategoryService {
   constructor(
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
-
-    @InjectRepository(ProductCategory)
-    private productCategoryRepository: Repository<ProductCategory>,
 
     @InjectRepository(CategoryDetail)
     private categoryDetailRepository: Repository<CategoryDetail>,
@@ -150,97 +143,4 @@ export class CategoryService {
     await this.categoryRepository.softDelete(categoryKeys);
     await this.categoryDetailRepository.softRemove(categoryDetails);
   }
-
-  // product-category
-//   async createProductCategory(key: string, id: string) {
-//     console.log(key);
-//     console.log(id);
-
-//     const productCategory = this.productCategoryRepository.create({
-//       categoryKey: key,
-//       productId: id,
-//     });
-//     return await this.productCategoryRepository.save(productCategory);
-//   }
-
-//   async updateProductCategory(dto: ProductCategoryReqDto) {
-//     const { categoryKey, productId } = dto;
-//     const [productCategory] = await this.productCategoryRepository.find({
-//       where: { categoryKey, productId },
-//     });
-//     if (!productCategory)
-//       throw new HttpException(
-//         'cannot find the productCategory',
-//         HttpStatus.NOT_FOUND,
-//       );
-//     else
-//       return await this.productCategoryRepository.update(categoryKey, {
-//         productId,
-//       });
-//   }
-
-//   async deleteProductCategory(dto: ProductCategoryReqDto) {
-//     const { categoryKey, productId } = dto;
-//     const [productCategory] = await this.productCategoryRepository.find({
-//       where: { categoryKey, productId },
-//     });
-//     if (!productCategory)
-//       throw new HttpException(
-//         'cannot find the productCategory',
-//         HttpStatus.NOT_FOUND,
-//       );
-//     else await this.productCategoryRepository.softRemove(productCategory);
-//   }
-
-//   async deleteListProductCategory(dto: deleteListProductCategoryRepDto) {
-//     const { categoryKey, productIds } = dto;
-//     const products = await this.productCategoryRepository.findBy({
-//       categoryKey,
-//     });
-//     if (!products)
-//       throw new HttpException(
-//         'this category have no product',
-//         HttpStatus.NOT_FOUND,
-//       );
-//     else await this.productCategoryRepository.softRemove(products);
-//   }
-
-//   async findAllProductCategory(dto: ProductCategoryPagenationDto) {
-//     const page = dto.page;
-//     const limit = dto.limit;
-//     const productCategoryQB = this.productCategoryRepository
-//       .createQueryBuilder('productCategory')
-//       .leftJoinAndSelect('productCategory.product', 'Product')
-//       .leftJoinAndSelect('productCategory.category', 'Category');
-
-//     return paginate(productCategoryQB, { limit, page });
-//   }
-
-//   // find product by it's category
-//   async findOneProductCategory(categoryKey: string) {
-//     const [productCategory] = await this.productCategoryRepository.find({
-//       where: { categoryKey },
-//       relations: ['product'],
-//     });
-//     if (!productCategory)
-//       throw new HttpException(
-//         'cannot find the productCategory',
-//         HttpStatus.NOT_FOUND,
-//       );
-//     else return productCategory;
-//   }
-
-//   //find category by it's products
-//   async findOneCategoryProduct(productId: string) {
-//     const [productCategory] = await this.productCategoryRepository.find({
-//       where: { productId },
-//       relations: ['category'],
-//     });
-//     if (!productCategory)
-//       throw new HttpException(
-//         'cannot find the productCategory',
-//         HttpStatus.NOT_FOUND,
-//       );
-//     else return productCategory;
-//   }
 }

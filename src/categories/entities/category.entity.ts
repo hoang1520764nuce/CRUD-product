@@ -1,7 +1,7 @@
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { CategoryDetail } from './category-detail.entity';
-import { ProductCategory } from './product-category.entity';
+import { ProductCategory } from '../../Products/entities/product-category.entity';
 
 @Entity()
 export class Category extends BaseEntity {

@@ -2,13 +2,14 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum } from 'class-validator';
 import { IsBoolean } from 'class-validator';
 import { CreateProductDetailDto } from 'src/product-details/dtos/create-product-detail.dto';
+import { UpdateProductDetailDto } from 'src/product-details/dtos/update-product-detail.dto';
 import {
   ProductStatus,
   ProductTaxStatus,
   ProductType,
 } from '../enums/product.enumtype';
 
-export class CreateProductDto {
+export class ProductReqDto {
   @ApiProperty({ enum: ['simple', 'configuarable'], default: 'simple' })
   @IsEnum(ProductType)
   readonly type: ProductType;
@@ -25,6 +26,11 @@ export class CreateProductDto {
   @IsEnum(ProductTaxStatus)
   readonly taxStatus: ProductTaxStatus;
 
+  @ApiProperty({ type: [String], default: ['1', '2', '3'] })
+  readonly categoryKeys:[] ;
+}
+
+export class CreateProductDto extends ProductReqDto {
   @ApiProperty({
     default: [
       {
@@ -36,5 +42,20 @@ export class CreateProductDto {
       },
     ],
   })
-  readonly productDetailDto: CreateProductDetailDto[];
+  readonly productDetailsDto: CreateProductDetailDto[];
+}
+
+export class UpdateProductDto extends ProductReqDto {
+  @ApiProperty({
+    default: [
+      {
+        lang: 'eng',
+        name: 'apple',
+        description: 'apple is a fruit',
+        shortDescription: 'apple fruit',
+        slug: 'apple',
+      },
+    ],
+  })
+  readonly updateProductDetailsDto: UpdateProductDetailDto[];
 }

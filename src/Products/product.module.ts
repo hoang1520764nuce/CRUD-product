@@ -5,10 +5,11 @@ import { Product } from "./entities/product.entity";
 import { productService } from "./product.service";
 import { ProductDetail } from "src/product-details/entities/product-detail.entity";
 import { ProductDetailsService } from "src/product-details/product-details.service";
+import { ProductCategory } from "./entities/product-category.entity";
 @Module({
     controllers:[productController],
     providers:[productService,ProductDetailsService],
-    imports:[TypeOrmModule.forFeature([Product,ProductDetail])],
+    imports:[TypeOrmModule.forFeature([Product,ProductDetail,ProductCategory])],
     exports:[TypeOrmModule]
 })
 export class ProductModule {}

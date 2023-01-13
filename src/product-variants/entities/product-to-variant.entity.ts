@@ -3,7 +3,7 @@ import { Product } from "src/products/entities/product.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 import { ProductVariant } from "./product-variant.entity";
 
-@Entity()
+@Entity({ name : 'product_to_variant'})
 export class ProductToVariant  extends BaseEntity{
     @PrimaryColumn( { name : 'product_id'})
     productId : string

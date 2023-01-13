@@ -4,13 +4,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { paginate } from 'nestjs-typeorm-paginate';
 import { ProductDetail } from 'src/product-details/entities/product-detail.entity';
 import { Transactional } from 'typeorm-transactional';
-import { In, Repository, TransactionAlreadyStartedError } from 'typeorm';
-import { CreateProductDto } from './dtos/create-product.dto';
+import { In, Repository } from 'typeorm';
+import { CreateProductDto } from './dtos/product.dto';
 import { ProductPagenationDto } from './dtos/product-pagenation.dto';
-import { updateProductDto } from './dtos/update-product.dto';
+import { UpdateProductDto } from './dtos/product.dto';
 import { Product } from './entities/product.entity';
 import { UpdateProductDetailDto } from 'src/product-details/dtos/update-product-detail.dto';
 import { DeleteListProductReqDto } from './dtos/delete-list-product.dto';
+import { ProductCategory } from './entities/product-category.entity';
 
 @Injectable()
 export class productService {
@@ -20,12 +21,22 @@ export class productService {
 
     @InjectRepository(ProductDetail)
     private productDetailRepository: Repository<ProductDetail>,
+
+    @InjectRepository(ProductCategory)
+    private productCategoryRepository: Repository<ProductCategory>,
   ) {}
 
   // using transaction
   @Transactional()
   async createProduct(dto: CreateProductDto) {
-    const { type, status, isFeatured, taxStatus, productDetailDto } = dto;
+    const {
+      type,
+      status,
+      isFeatured,
+      taxStatus,
+      productDetailsDto,
+      categoryKeys,
+    } = dto;
     const product = this.productRepository.create({
       type,
       status,
@@ -33,40 +44,60 @@ export class productService {
       taxStatus,
     });
     await this.productRepository.save(product);
-    const productDetail = productDetailDto.map((productDetailDto) =>
+
+    const productDetail = productDetailsDto.map((inputed) =>
       this.productDetailRepository.create({
         productId: product.id,
-        lang: productDetailDto.lang,
-        name: productDetailDto.name,
-        description: productDetailDto.description,
-        shortDescription: productDetailDto.shortDescription,
-        slug: productDetailDto.slug,
+        lang: inputed.lang,
+        name: inputed.name,
+        description: inputed.description,
+        shortDescription: inputed.shortDescription,
+        slug: inputed.slug,
       }),
     );
+    console.log(productDetailsDto);
+    console.log(categoryKeys);
+    const productCategory = categoryKeys.map((inputed) =>
+      this.productCategoryRepository.create({
+        productId: product.id,
+        categoryKey: inputed,
+      }),
+    );
+
     await this.productDetailRepository.save(productDetail);
     product.productDetails = productDetail;
+
+    await this.productCategoryRepository.save(productCategory);
+    product.productCategories = productCategory;
+
     return product;
   }
 
   @Transactional()
-  async updateProduct(id: string, dto: updateProductDto) {
-    const { updateProductDetailDto } = dto;
+  async updateProduct(id: string, dto: UpdateProductDto) {
+    const { updateProductDetailsDto, categoryKeys } = dto;
     const exitsProduct = await this.productRepository.findOne({
       where: { id: id },
-      relations: { productDetails: true },
+      relations: { productDetails: true, productCategories: true },
     });
     if (!exitsProduct)
       throw new HttpException('cannot find the product', HttpStatus.NOT_FOUND);
-    else return this.updateProductDetail(exitsProduct, updateProductDetailDto);
+    else
+      return this.updateProductDetail(
+        exitsProduct,
+        updateProductDetailsDto,
+        categoryKeys,
+      );
   }
 
   private async updateProductDetail(
     exitsProduct: Product,
-    updateProductDetailDto: UpdateProductDetailDto[],
+    updateProductDetailsDto: UpdateProductDetailDto[],
+    categoryKeys: string[],
   ) {
     const removeProductDetails: UpdateProductDetailDto[] = [];
     exitsProduct.productDetails.forEach((exitsProductDetailItem) => {
-      const existdProductDetail = updateProductDetailDto.some((item) => {
+      const existdProductDetail = updateProductDetailsDto.some((item) => {
         return item.lang === exitsProductDetailItem.lang;
       });
 
@@ -76,7 +107,7 @@ export class productService {
       }
     });
 
-    const updateProductDetail = updateProductDetailDto.map((item) =>
+    const updateProductDetail = updateProductDetailsDto.map((item) =>
       this.productDetailRepository.create({
         productId: exitsProduct.id,
         lang: item.lang,
@@ -86,10 +117,32 @@ export class productService {
         slug: item.slug,
       }),
     );
-    // use save() method to update
 
+    const removeProductCategory: ProductCategory[] = [];
+    exitsProduct.productCategories.forEach((exitsProductCategoryItem) => {
+      const existdProductCategory = categoryKeys.some((item) => {
+        return item === exitsProductCategoryItem.categoryKey;
+      });
+
+      if (!existdProductCategory) {
+        removeProductCategory.push(exitsProductCategoryItem);
+        return;
+      }
+    });
+
+    const updateProductCategory = categoryKeys.map((item) =>
+      this.productCategoryRepository.create({
+        productId: exitsProduct.id,
+        categoryKey: item,
+      }),
+    );
+
+    // use save() method to update
     await this.productDetailRepository.softRemove(removeProductDetails);
     await this.productDetailRepository.save(updateProductDetail);
+
+    await this.productCategoryRepository.softRemove(removeProductCategory);
+    await this.productCategoryRepository.save(updateProductCategory);
   }
 
   async findAll(dto: ProductPagenationDto) {
@@ -97,15 +150,21 @@ export class productService {
     const limit = dto.limit;
     const productQueryBuilder = this.productRepository
       .createQueryBuilder('product')
-      .leftJoinAndSelect('product.productDetails', 'ProductDetail');
+      .leftJoinAndSelect('product.productDetails', 'ProductDetail')
+      .leftJoinAndSelect('product.productCategories', 'ProductCategory')
+      .leftJoinAndSelect('ProductCategory.category', 'Category')
+      .leftJoinAndSelect('Category.categoryDetails', 'CategoryDetail');
 
     return paginate(productQueryBuilder, { limit, page });
   }
 
   async findById(id: string) {
-    const product = await this.productRepository.findOne({
-      where: { id },
-      relations: { productDetails: true },
+    const product = await this.productRepository.find({
+      relations: {
+        productDetails: true,
+        productCategories: { category: { categoryDetails: true } },
+      },
+      where: { id: id },
     });
     if (!product)
       throw new HttpException('cannot find the product', HttpStatus.NOT_FOUND);
@@ -128,6 +187,16 @@ export class productService {
         HttpStatus.NOT_FOUND,
       );
     } else await this.productDetailRepository.softRemove(productDetai);
+
+    const productCategory = await this.productCategoryRepository.findOneBy({
+      productId: product.id,
+    });
+    if (!productCategory) {
+      throw new HttpException(
+        'cannot find the category of product',
+        HttpStatus.NOT_FOUND,
+      );
+    } else await this.productCategoryRepository.softRemove(productCategory);
   }
 
   async softDeleteListProduct(dto: DeleteListProductReqDto) {
@@ -144,8 +213,12 @@ export class productService {
     const productDetails = await this.productDetailRepository.findBy({
       productId: In(ids),
     });
-   
+
+    const productCategories = await this.productCategoryRepository.findBy({
+      productId: In(ids),
+    });
     await this.productRepository.softDelete(ids);
     await this.productDetailRepository.softRemove(productDetails);
+    await this.productCategoryRepository.softRemove(productCategories);
   }
 }

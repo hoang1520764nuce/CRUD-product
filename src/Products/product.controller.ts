@@ -10,19 +10,21 @@ import {
   Query,
 } from '@nestjs/common/decorators';
 import { productService } from './product.service';
-import { CreateProductDto } from './dtos/create-product.dto';
-import { updateProductDto } from './dtos/update-product.dto';
+import { CreateProductDto } from './dtos/product.dto';
+import { UpdateProductDto } from './dtos/product.dto';
 import { PaginationResponse } from 'src/common/decorators/pagination-response.decorator';
 import { Product } from './entities/product.entity';
 import { ProductPagenationDto } from './dtos/product-pagenation.dto';
 import { DeleteListProductReqDto } from './dtos/delete-list-product.dto';
+import { ApiTags } from '@nestjs/swagger';
 @Controller('product')
+@ApiTags('Products')
 export class productController {
   constructor(private productService: productService) {}
 
   @Post('createProduct')
-  async createProduct(@Body() body: CreateProductDto) {
-    const product = await this.productService.createProduct(body);
+   createProduct(@Body() body: CreateProductDto) {
+    const product =  this.productService.createProduct(body);
     return product;
   }
 
@@ -38,7 +40,7 @@ export class productController {
   }
 
   @Patch('updateProductBy:id')
-  updateProduct(@Param('id') id: string, @Body() body: updateProductDto) {
+  updateProduct(@Param('id') id: string, @Body() body: UpdateProductDto) {
     return this.productService.updateProduct(id, body);
   }
 
