@@ -27,7 +27,6 @@ import { ProductAttributeTerm } from './product-variants/entities/product-attrib
 import { ProductAttribute } from './product-variants/entities/product-attribute.entity';
 import { ProductAttributeTermDetail } from './product-variants/entities/product-attribute-term-detail.entity';
 
-
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
@@ -69,7 +68,8 @@ import { ProductAttributeTermDetail } from './product-variants/entities/product-
     }),
     ProductModule,
     CategoryModule,
-    ProductDetailsModule,  
+    ProductDetailsModule,
+    ProductVariantsModule,
   ],
 })
 export class AppModule {}

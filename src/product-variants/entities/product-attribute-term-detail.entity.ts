@@ -6,7 +6,7 @@ import { ProductAttributeTerm } from "./product-attribute-term.entity";
 @Entity()
 export class ProductAttributeTermDetail  extends BaseEntity{
     @PrimaryColumn( { name : 'product_attribute_term_id'})
-    productAttributeTermId : string
+    productAttributeTermId : number
 
     @PrimaryColumn( { type : 'enum' , enum : langEnum})
     lang : langEnum

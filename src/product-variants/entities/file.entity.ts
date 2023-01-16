@@ -7,10 +7,10 @@ import { ProductVariantImage } from "./product-variant-image.entity";
 export class File  extends BaseEntity{ 
 
     @PrimaryGeneratedColumn( { name : 'id'})
-    id : string
+    id : number
 
     @Column( { name : 'key'})
-    key : string
+    key : number
 
     @Column({nullable : true})
     url : string

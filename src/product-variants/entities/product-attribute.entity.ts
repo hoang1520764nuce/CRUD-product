@@ -10,7 +10,7 @@ import { ProductAttributeTerm } from "./product-attribute-term.entity";
 export class ProductAttribute  extends BaseEntity{
 
     @PrimaryGeneratedColumn( { name : 'key'})
-     key : string 
+     key : number 
      
      @Column( { type : 'enum' , enum : typeProductAttribute })
      type : string | typeProductAttribute

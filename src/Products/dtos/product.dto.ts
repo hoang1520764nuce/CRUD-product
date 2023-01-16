@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum } from 'class-validator';
+import { IsAlpha, IsArray, IsEnum } from 'class-validator';
 import { IsBoolean } from 'class-validator';
 import { CreateProductDetailDto } from 'src/product-details/dtos/create-product-detail.dto';
 import { UpdateProductDetailDto } from 'src/product-details/dtos/update-product-detail.dto';
@@ -25,9 +25,10 @@ export class ProductReqDto {
   @ApiProperty({ enum: ['taxable', 'none'], default: 'none' })
   @IsEnum(ProductTaxStatus)
   readonly taxStatus: ProductTaxStatus;
-
-  @ApiProperty({ type: [String], default: ['1', '2', '3'] })
-  readonly categoryKeys:[] ;
+ 
+  @IsArray()
+  @ApiProperty({ default: ['1', '2', '3'] })
+  readonly categoryKeys:string[] ;
 }
 
 export class CreateProductDto extends ProductReqDto {

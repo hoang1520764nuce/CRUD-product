@@ -8,10 +8,10 @@ import { ProductToAttribute } from "./product-to-attribute.entity";
 export class ProductAttributeTerm  extends BaseEntity{
 
     @PrimaryGeneratedColumn( { name : 'id'})
-    id : string
+    id : number
 
     @Column( { name : 'product_attribute_key'})
-    productAttributeKey : string
+    productAttributeKey : number
 
     //join  productToAttribute
     @OneToMany( () => ProductToAttribute , productToAttribute => productToAttribute.productAttributeTerm)

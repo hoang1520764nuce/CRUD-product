@@ -7,7 +7,7 @@ import { ProductAttribute } from "./product-attribute.entity";
 export class ProductAttributeDetail  extends BaseEntity{ 
 
     @PrimaryColumn( { name : 'product_attribute_key'})
-    productAttributeKey : string
+    productAttributeKey : number
 
     @Column( { type : 'enum' , enum : langEnum } )
     lang : langEnum

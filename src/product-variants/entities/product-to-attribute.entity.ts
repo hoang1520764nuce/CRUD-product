@@ -7,13 +7,13 @@ import { ProductVariant } from "./product-variant.entity";
 export class ProductToAttribute extends BaseEntity {
 
     @PrimaryGeneratedColumn( { name : 'id'})
-    id : string
+    id : number
 
     @Column( { name : 'product_variant_id'})
-    productVariantId : string
+    productVariantId : number
 
     @Column( { name : 'product_attribute_term_id'})
-    productAttributeTermId : string
+    productAttributeTermId : number
 
     //join productAttributeTerm
     @ManyToOne( () => ProductAttributeTerm , productAttributeTerm => productAttributeTerm.productToAttributes)

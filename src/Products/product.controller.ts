@@ -23,8 +23,8 @@ export class productController {
   constructor(private productService: productService) {}
 
   @Post('createProduct')
-   createProduct(@Body() body: CreateProductDto) {
-    const product =  this.productService.createProduct(body);
+  createProduct(@Body() body: CreateProductDto) {
+    const product = this.productService.createProduct(body);
     return product;
   }
 
@@ -39,7 +39,7 @@ export class productController {
     return this.productService.findById(id);
   }
 
-  @Patch('updateProductBy:id')
+  @Put('updateProductBy:id')
   updateProduct(@Param('id') id: string, @Body() body: UpdateProductDto) {
     return this.productService.updateProduct(id, body);
   }

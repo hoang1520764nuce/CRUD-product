@@ -14,7 +14,7 @@ export class Category extends BaseEntity {
     (productCategory) => productCategory.category,
   )
   @JoinColumn()
-  productCategories: ProductCategory[];
+  categorieProducts: ProductCategory[];
   //end join
 
   //join in category-detail

@@ -12,6 +12,7 @@ import { Product } from './entities/product.entity';
 import { UpdateProductDetailDto } from 'src/product-details/dtos/update-product-detail.dto';
 import { DeleteListProductReqDto } from './dtos/delete-list-product.dto';
 import { ProductCategory } from './entities/product-category.entity';
+import { Category } from 'src/categories/entities/category.entity';
 
 @Injectable()
 export class productService {
@@ -24,6 +25,9 @@ export class productService {
 
     @InjectRepository(ProductCategory)
     private productCategoryRepository: Repository<ProductCategory>,
+
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
   ) {}
 
   // using transaction
@@ -75,74 +79,150 @@ export class productService {
 
   @Transactional()
   async updateProduct(id: string, dto: UpdateProductDto) {
-    const { updateProductDetailsDto, categoryKeys } = dto;
+    const {
+      type,
+      status,
+      isFeatured,
+      taxStatus,
+      updateProductDetailsDto,
+      categoryKeys,
+    } = dto;
+
     const exitsProduct = await this.productRepository.findOne({
       where: { id: id },
       relations: { productDetails: true, productCategories: true },
     });
     if (!exitsProduct)
       throw new HttpException('cannot find the product', HttpStatus.NOT_FOUND);
-    else
-      return this.updateProductDetail(
+    Promise.all([
+      this.productRepository.update(id, {
+        type,
+        status,
+        isFeatured,
+        taxStatus,
+      }),
+      this.updateProductDetail(
         exitsProduct,
         updateProductDetailsDto,
+        exitsProduct.productDetails,
+      ),
+      this.updateProductCategory(
+        exitsProduct,
         categoryKeys,
-      );
+        exitsProduct.productCategories,
+      ),
+    ]);
+
+    
   }
 
   private async updateProductDetail(
     exitsProduct: Product,
     updateProductDetailsDto: UpdateProductDetailDto[],
-    categoryKeys: string[],
+    productDetails: ProductDetail[],
   ) {
-    const removeProductDetails: UpdateProductDetailDto[] = [];
-    exitsProduct.productDetails.forEach((exitsProductDetailItem) => {
+    // array to hold id to remove
+    const removeProductDetails: string[] = [];
+    const insertProductDetails: UpdateProductDetailDto[] = [];
+    // if old field don't exits on dto - remove
+    productDetails.forEach((exitsProductDetailItem) => {
       const existdProductDetail = updateProductDetailsDto.some((item) => {
         return item.lang === exitsProductDetailItem.lang;
       });
-
       if (!existdProductDetail) {
-        removeProductDetails.push(exitsProductDetailItem);
-        return;
+        removeProductDetails.push(exitsProductDetailItem.id);
       }
     });
 
-    const updateProductDetail = updateProductDetailsDto.map((item) =>
-      this.productDetailRepository.create({
-        productId: exitsProduct.id,
-        lang: item.lang,
-        name: item.name,
-        description: item.description,
-        shortDescription: item.shortDescription,
-        slug: item.slug,
-      }),
-    );
+    // if dto don't exits on db - insert
+    updateProductDetailsDto.forEach(async (item) => {
+      const isExistInDB = exitsProduct.productDetails.some(
+        (exitsProductDetailItem) => {
+          return item.lang === exitsProductDetailItem.lang;
+        },
+      );
 
-    const removeProductCategory: ProductCategory[] = [];
-    exitsProduct.productCategories.forEach((exitsProductCategoryItem) => {
+      const productDetail = this.productDetailRepository.findBy({
+        id: exitsProduct.id,
+      });
+      if (!productDetail)
+        throw new HttpException(
+          'cannot find the product detail',
+          HttpStatus.NOT_FOUND,
+        );
+
+      if (!isExistInDB) {
+        insertProductDetails.push(
+          this.productDetailRepository.create({
+            productId: exitsProduct.id,
+            lang: item.lang,
+            name: item.name,
+            description: item.description,
+            shortDescription: item.shortDescription,
+            slug: item.slug,
+          }),
+        );
+      }
+    });
+
+    await Promise.all([
+      this.productDetailRepository.softDelete(removeProductDetails),
+      this.productDetailRepository.insert(insertProductDetails),
+    ]);
+    // await this.productDetailRepository.softDelete(removeProductDetails);
+    // await this.productDetailRepository.insert(insertProductDetails);
+  }
+
+  private async updateProductCategory(
+    exitsProduct: Product,
+    categoryKeys: string[],
+    productCategories: ProductCategory[],
+  ) {
+    const removeProductCategories: string[] = [];
+    const insertProductCategories: ProductCategory[] = [];
+    // if old field don't exits on dto - remove
+
+    productCategories.forEach((exitsProductCategoryItem) => {
       const existdProductCategory = categoryKeys.some((item) => {
+        console.log(item, exitsProductCategoryItem.categoryKey);
+        return item === exitsProductCategoryItem.categoryKey;
+      });
+      console.log(existdProductCategory);
+      if (!existdProductCategory) {
+        removeProductCategories.push(exitsProductCategoryItem.id);
+      }
+    });
+    console.log(removeProductCategories);
+    // if dto don't exits on db - insert
+    categoryKeys.forEach(async (item) => {
+      const isExistInDB = productCategories.some((exitsProductCategoryItem) => {
         return item === exitsProductCategoryItem.categoryKey;
       });
 
-      if (!existdProductCategory) {
-        removeProductCategory.push(exitsProductCategoryItem);
-        return;
+      const [category] = await this.categoryRepository.findBy({ key: item });
+
+      if (!category) {
+        throw new HttpException(
+          'cannot find the category',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      if (!isExistInDB) {
+        insertProductCategories.push(
+          this.productCategoryRepository.create({
+            productId: exitsProduct.id,
+            categoryKey: item,
+          }),
+        );
       }
     });
 
-    const updateProductCategory = categoryKeys.map((item) =>
-      this.productCategoryRepository.create({
-        productId: exitsProduct.id,
-        categoryKey: item,
-      }),
-    );
-
-    // use save() method to update
-    await this.productDetailRepository.softRemove(removeProductDetails);
-    await this.productDetailRepository.save(updateProductDetail);
-
-    await this.productCategoryRepository.softRemove(removeProductCategory);
-    await this.productCategoryRepository.save(updateProductCategory);
+    await Promise.all([
+      this.productCategoryRepository.softDelete(removeProductCategories),
+      // insert new feild  - old field no change
+      this.productCategoryRepository.insert(insertProductCategories),
+    ]);
   }
 
   async findAll(dto: ProductPagenationDto) {

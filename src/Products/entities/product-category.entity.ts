@@ -1,6 +1,6 @@
+import { BaseEntity } from 'src/common/entities/base.entity';
 import { Product } from 'src/products/entities/product.entity';
 import {
-  BaseEntity,
   Column,
   Entity,
   JoinColumn,
@@ -11,10 +11,14 @@ import {
 import { Category } from '../../categories/entities/category.entity';
 @Entity()
 export class ProductCategory extends BaseEntity {
-  @PrimaryColumn({ name: 'product_id' })
+
+  @PrimaryGeneratedColumn()
+  id : string
+
+  @Column({ name: 'product_id' })
   productId: string;
 
-  @PrimaryColumn({ name: 'category_key' })
+  @Column({ name: 'category_key' })
   categoryKey: string;
 
   // join product
@@ -24,7 +28,7 @@ export class ProductCategory extends BaseEntity {
   //endjoin
 
   // join category
-  @ManyToOne(() => Category, (category) => category.productCategories)
+  @ManyToOne(() => Category, (category) => category.categorieProducts)
   @JoinColumn({ name: 'category_key' })
   category: Category;
   //endjoin

@@ -6,10 +6,10 @@ import { ProductVariant } from "./product-variant.entity";
 @Entity()
 export class ProductToVariant  extends BaseEntity{
     @PrimaryColumn( { name : 'product_id'})
-    productId : string
+    productId : number
 
     @PrimaryColumn( { name : 'product_variant_id'})
-    productVariantId : string
+    productVariantId : number
     
     //join productVariant
     @ManyToOne( () => ProductVariant , productVariant => productVariant.productToVariants)

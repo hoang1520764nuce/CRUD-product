@@ -7,10 +7,10 @@ import { File } from "./file.entity";
 export class ProductVariantImage extends BaseEntityWithoutUpdateAndVersion { 
     
     @PrimaryColumn( { name : 'file_id'})
-    imageId : string
+    imageId : number
 
     @PrimaryColumn( { name : 'product_variant_id'})
-    productVariantId : string
+    productVariantId : number
 
     //join product_variant
     @ManyToOne( () => ProductVariant , productVariant => productVariant.productVariantImages)
