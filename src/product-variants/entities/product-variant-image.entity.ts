@@ -1,15 +1,18 @@
 import { BaseEntityWithoutUpdateAndVersion } from "src/common/entities/base.entity";
-import { Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 import { ProductVariant } from "./product-variant.entity";
 import { File } from "./file.entity";
 @Entity()
 
 export class ProductVariantImage extends BaseEntityWithoutUpdateAndVersion { 
     
-    @PrimaryColumn( { name : 'file_id'})
+    @PrimaryGeneratedColumn()
+    id : number
+
+    @Column( { name : 'file_id'})
     imageId : number
 
-    @PrimaryColumn( { name : 'product_variant_id'})
+    @Column( { name : 'product_variant_id'})
     productVariantId : number
 
     //join product_variant

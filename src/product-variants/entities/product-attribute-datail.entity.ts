@@ -1,12 +1,14 @@
 import { BaseEntity } from "src/common/entities/base.entity";
 import { langEnum } from "src/common/enums/lang.enum";
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 import { ProductAttribute } from "./product-attribute.entity";
 
 @Entity()
 export class ProductAttributeDetail  extends BaseEntity{ 
+    @PrimaryGeneratedColumn()
+    id : number
 
-    @PrimaryColumn( { name : 'product_attribute_key'})
+    @Column( { name : 'product_attribute_key'})
     productAttributeKey : number
 
     @Column( { type : 'enum' , enum : langEnum } )

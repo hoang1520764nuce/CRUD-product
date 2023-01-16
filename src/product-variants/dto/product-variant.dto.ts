@@ -21,6 +21,10 @@ export class CreateProductVariantDto {
   @IsBoolean()
   @ApiProperty({  default: false  })
   onSale: boolean;
+
+  @IsNumber()
+  @ApiProperty({ name: 'product_id', default: 1 })
+  productId: number;
 }
 
 export class UpdateProductVariantDto 
@@ -47,4 +51,8 @@ export class UpdateProductVariantDto
   @IsBoolean()
   @ApiProperty({  default: false  })
   onSale: boolean;
+
+  @IsNumber()
+  @ApiProperty({ name: 'product_id', default: 1 })
+  productId: number;
 }

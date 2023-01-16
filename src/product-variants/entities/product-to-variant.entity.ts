@@ -5,10 +5,13 @@ import { ProductVariant } from "./product-variant.entity";
 
 @Entity()
 export class ProductToVariant  extends BaseEntity{
-    @PrimaryColumn( { name : 'product_id'})
+    @PrimaryGeneratedColumn()
+    id : number
+
+    @Column( { name : 'product_id'})
     productId : number
 
-    @PrimaryColumn( { name : 'product_variant_id'})
+    @Column( { name : 'product_variant_id'})
     productVariantId : number
     
     //join productVariant
