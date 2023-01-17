@@ -7,13 +7,13 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { ProductVariantsService } from './services/product-variants.service';
-import { CreateProductVariantDto } from './dto/product-variant.dto';
-import { UpdateProductVariantDto } from './dto/product-variant.dto';
+import { ProductVariantsService } from '../services/product-variants.service';
+import { CreateProductVariantDto } from '../dto/product-variant.dto';
+import { UpdateProductVariantDto } from '../dto/product-variant.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Put, Query } from '@nestjs/common/decorators';
-import { deleteListProductVariantDto } from './dto/detele-list-product-variant.dto';
-import { ProductVariant } from './entities/product-variant.entity';
+import { deleteListProductVariantDto } from '../dto/detele-list-product-variant.dto';
+import { ProductVariant } from '../entities/product-variant.entity';
 import { PaginationResponse } from 'src/common/decorators/pagination-response.decorator';
 import { ProductVariantPagenationDto } from 'src/Products/dtos/product-variant-pagenation.dto';
 
@@ -42,7 +42,7 @@ export class ProductVariantsController {
     return this.productVariantsService.findOneProductVariant(id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(
     @Param('id') id: number,
     @Body() updateProductVariantDto: UpdateProductVariantDto,

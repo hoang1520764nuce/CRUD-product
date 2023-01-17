@@ -15,6 +15,9 @@ export class ProductAttribute  extends BaseEntity{
      @Column( { type : 'enum' , enum : typeProductAttribute })
      type : string | typeProductAttribute
 
+     @Column( { name : 'has_achives'})
+     hasAchives : boolean
+
      // join productAttributeTerm
         @OneToMany( () => ProductAttributeTerm , productAttributeTerm => productAttributeTerm.productAttribute)
         productAttributeTerms : ProductAttributeTerm[]

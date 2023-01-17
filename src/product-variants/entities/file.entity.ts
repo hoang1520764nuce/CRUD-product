@@ -22,7 +22,7 @@ export class File  extends BaseEntity{
     size : number
 
     @Column( { name : 'uploaderId'})
-    uploaderId : string
+    uploaderId : number
 
     // join productVariantImage
     @OneToMany( type => ProductVariantImage , productVariantImage => productVariantImage.file)

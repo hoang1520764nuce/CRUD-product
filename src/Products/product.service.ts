@@ -59,8 +59,7 @@ export class productService {
         slug: inputed.slug,
       }),
     );
-    console.log(productDetailsDto);
-    console.log(categoryKeys);
+   
     const productCategory = categoryKeys.map((inputed) =>
       this.productCategoryRepository.create({
         productId: product.id,
@@ -112,8 +111,6 @@ export class productService {
         exitsProduct.productCategories,
       ),
     ]);
-
-    
   }
 
   private async updateProductDetail(
@@ -121,7 +118,7 @@ export class productService {
     updateProductDetailsDto: UpdateProductDetailDto[],
     productDetails: ProductDetail[],
   ) {
-    // array to hold id to remove
+    // array to hold id in order to remove
     const removeProductDetails: string[] = [];
     const insertProductDetails: UpdateProductDetailDto[] = [];
     // if old field don't exits on dto - remove
@@ -165,15 +162,20 @@ export class productService {
       }
     });
 
-    await Promise.all([
+    // if user input no change --> do Nothing
+    if(removeProductDetails.length)
+    {await Promise.all([
       this.productDetailRepository.softDelete(removeProductDetails),
       this.productDetailRepository.insert(insertProductDetails),
-    ]);
+    ]);}
+    else 
+    this.productDetailRepository.save(insertProductDetails)
+
     // await this.productDetailRepository.softDelete(removeProductDetails);
     // await this.productDetailRepository.insert(insertProductDetails);
   }
 
-  private async updateProductCategory(
+  private async updateProductCategory(    
     exitsProduct: Product,
     categoryKeys: string[],
     productCategories: ProductCategory[],
@@ -184,15 +186,14 @@ export class productService {
 
     productCategories.forEach((exitsProductCategoryItem) => {
       const existdProductCategory = categoryKeys.some((item) => {
-        console.log(item, exitsProductCategoryItem.categoryKey);
         return item === exitsProductCategoryItem.categoryKey;
       });
-      console.log(existdProductCategory);
+      
       if (!existdProductCategory) {
         removeProductCategories.push(exitsProductCategoryItem.id);
       }
     });
-    console.log(removeProductCategories);
+    
     // if dto don't exits on db - insert
     categoryKeys.forEach(async (item) => {
       const isExistInDB = productCategories.some((exitsProductCategoryItem) => {
@@ -218,11 +219,15 @@ export class productService {
       }
     });
 
-    await Promise.all([
+    //  if user input no change data --> doNothing
+  
+    if(removeProductCategories.length)
+    {await Promise.all([
       this.productCategoryRepository.softDelete(removeProductCategories),
       // insert new feild  - old field no change
       this.productCategoryRepository.insert(insertProductCategories),
-    ]);
+    ]);}
+    else this.productCategoryRepository.save(insertProductCategories)
   }
 
   async findAll(dto: ProductPagenationDto) {
@@ -253,12 +258,12 @@ export class productService {
 
   @Transactional()
   async softDeleteProduct(id: string) {
-    const product = await this.productRepository.findOneBy({ id: id });
+    const [product] = await this.productRepository.findBy({ id: id });
     if (!product)
       throw new HttpException('cannot find the product', HttpStatus.NOT_FOUND);
     else await this.productRepository.softDelete(id);
 
-    const productDetai = await this.productDetailRepository.findOneBy({
+    const [productDetai] = await this.productDetailRepository.findBy({
       productId: product.id,
     });
     if (!productDetai) {
@@ -268,9 +273,10 @@ export class productService {
       );
     } else await this.productDetailRepository.softRemove(productDetai);
 
-    const productCategory = await this.productCategoryRepository.findOneBy({
+    const [productCategory] = await this.productCategoryRepository.findBy({
       productId: product.id,
     });
+    console.log(productCategory);
     if (!productCategory) {
       throw new HttpException(
         'cannot find the category of product',
@@ -279,6 +285,7 @@ export class productService {
     } else await this.productCategoryRepository.softRemove(productCategory);
   }
 
+  @Transactional()
   async softDeleteListProduct(dto: DeleteListProductReqDto) {
     const { ids } = dto;
     const products = await this.productRepository.findBy({ id: In(ids) });

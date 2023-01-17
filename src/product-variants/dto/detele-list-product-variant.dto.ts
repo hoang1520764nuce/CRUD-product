@@ -1,9 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsString } from "class-validator";
+import { IsArray, IsNumber, IsString } from "class-validator";
 
 export class deleteListProductVariantDto {
-    @IsString({ each: true })
+    @IsNumber()
     @IsArray()
-    @ApiProperty({type : [String] , name: 'ids', default: ['1', '2', '3'] })
-    ids:[]
+    @ApiProperty({ default: [1,2,3] })
+    ids:number[]
 }
