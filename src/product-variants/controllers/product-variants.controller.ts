@@ -15,7 +15,7 @@ import { Put, Query } from '@nestjs/common/decorators';
 import { deleteListProductVariantDto } from '../dto/detele-list-product-variant.dto';
 import { ProductVariant } from '../entities/product-variant.entity';
 import { PaginationResponse } from 'src/common/decorators/pagination-response.decorator';
-import { ProductVariantPagenationDto } from 'src/Products/dtos/product-variant-pagenation.dto';
+import { ProductVariantPagenationDto } from 'src/product-variants/dto/product-variant-pagenation.dto';
 
 @Controller('product-variants')
 @ApiTags('product-variants')

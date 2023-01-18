@@ -5,7 +5,8 @@ import { CreateProductAttributeDto, UpdateProductAttributeDto } from '../dto/pro
 
 import { ProductAttribute } from '../entities/product-attribute.entity';
 import { PaginationResponse } from 'src/common/decorators/pagination-response.decorator';
-import { deleteListProductAttributetDto } from '../dto/delete-list-product-attribute.dto';
+import { deleteListProductAttributeDto } from '../dto/delete-list-product-attribute.dto';
+import { ProductAttributePagenationDto } from '../dto/product-attribute-pagenation.dto';
 
 
 @Controller('product-attribute')
@@ -22,7 +23,7 @@ constructor(
 
     @Get()
     @PaginationResponse(ProductAttribute)
-    getAllProductAttribute(@Query() query){
+    getAllProductAttribute(@Query() query : ProductAttributePagenationDto){
         return this.productAttributeService.findAll(query);
     }
 
@@ -42,7 +43,7 @@ constructor(
     }
 
     @Delete()
-    deleteListProductAttribute(@Body() body : deleteListProductAttributetDto){
+    deleteListProductAttribute(@Body() body : deleteListProductAttributeDto){
         return this.productAttributeService.softListRemove(body);
     }
 

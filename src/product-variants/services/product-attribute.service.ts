@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { paginate } from 'nestjs-typeorm-paginate';
-import { ProductAttributePagenationDto } from 'src/Products/dtos/product-attribute-pagenation.dto';
+import { ProductAttributePagenationDto } from 'src/product-variants/dto/product-attribute-pagenation.dto';
 import { Product } from 'src/products/entities/product.entity';
 import { In, Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
-import { deleteListProductAttributetDto } from '../dto/delete-list-product-attribute.dto';
+import { deleteListProductAttributeDto } from '../dto/delete-list-product-attribute.dto';
 import { ProductAttributeDetailDto } from '../dto/product-attribute-detail.dto';
 import { CreateProductAttributeDto } from '../dto/product-attribute.dto';
 import { ProductAttributeDetail } from '../entities/product-attribute-datail.entity';
@@ -91,7 +91,7 @@ export class ProductAttributeService {
                     }
             });
 
-            productAttributeDetails.forEach((item) => {
+            productAttributeDetails.forEach(async(item) => {
                 const isExistInDb = exitsProductAttribute.productAttributeDetails.some(
                     (dbItem) => dbItem.lang === item.lang,
                 );
@@ -137,8 +137,13 @@ export class ProductAttributeService {
         const productAttribute = await this.productAttributeRepository
         .createQueryBuilder('productAttribute')
         .leftJoinAndSelect('productAttribute.productAttributeDetails', 'productAttributeDetails')
-        .where('productAttribute.key = :key', { key })
+        .where('productAttribute.key = :key', { key : key })
         .getOne();
+
+        if(!productAttribute)
+        {
+            throw new Error('cannot find product attribute');
+        }
 
         return productAttribute ;
     }
@@ -149,7 +154,7 @@ export class ProductAttributeService {
             {key : key});
         if(!productAttribute)
         {
-            console.log('cannot find product attribute');
+            throw new Error('cannot find product attribute');
         }
 
         const productAttributeDetails = await this.productAttributeDetailRepository.find({
@@ -162,7 +167,7 @@ export class ProductAttributeService {
     }
 
     @Transactional()
-    async softListRemove(dto : deleteListProductAttributetDto){
+    async softListRemove(dto : deleteListProductAttributeDto){
         const { keys }  = dto ;
         const productAttribute = await this.productAttributeRepository.findBy(
             {key : In(keys)});

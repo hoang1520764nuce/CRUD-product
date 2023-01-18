@@ -16,10 +16,12 @@ import { fileController } from './controllers/file.controller';
 import { Product } from 'src/products/entities/product.entity';
 import { ProductAttributeController } from './controllers/product-attribute.controller';
 import { ProductAttributeService } from './services/product-attribute.service';
+import { ProductAttributeTermController } from './controllers/product-attribute-term.controller';
+import { ProductAttributeTermService } from './services/product-attribute-term.service';
 
 @Module({
-  controllers: [ProductVariantsController,fileController,ProductAttributeController],
-  providers: [ProductVariantsService, fileService,ProductAttributeService],
+  controllers: [ProductVariantsController,fileController,ProductAttributeController,ProductAttributeTermController],
+  providers: [ProductVariantsService, fileService,ProductAttributeService,ProductAttributeTermService],
   imports: [
     TypeOrmModule.forFeature([
       ProductToVariant,

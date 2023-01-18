@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { paginate } from 'nestjs-typeorm-paginate';
-import { ProductVariantPagenationDto } from 'src/Products/dtos/product-variant-pagenation.dto';
+import { ProductVariantPagenationDto } from 'src/product-variants/dto/product-variant-pagenation.dto';
 import { In, Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { deleteListProductVariantDto } from '../dto/detele-list-product-variant.dto';
@@ -168,14 +168,14 @@ export class ProductVariantsService {
       }
     });
     //  if user input no change data --> doNothing
-    if(!productToVariantToRemove.length) {
-      this.productToVariantRepository.save(productToVariantToUpdate)
+    if (!productToVariantToRemove.length) {
+      this.productToVariantRepository.save(productToVariantToUpdate);
+    } else {
+      await Promise.all([
+        this.productToVariantRepository.softDelete(productToVariantToRemove),
+        this.productToVariantRepository.insert(productToVariantToUpdate),
+      ]);
     }
-    else 
-   { await Promise.all([
-      this.productToVariantRepository.softDelete(productToVariantToRemove),
-      this.productToVariantRepository.insert(productToVariantToUpdate),
-    ]);}
   }
 
   private async updateProductVariantImage(
@@ -224,17 +224,14 @@ export class ProductVariantsService {
       }
     });
     //  if user input no change data --> doNothing
-    if(productVariantImageToRemove.length) {
-      await Promise.all([  
+    if (productVariantImageToRemove.length) {
+      await Promise.all([
         this.productVariantImageRepository.softDelete(
           productVariantImageToRemove,
         ),
         this.productVariantImageRepository.insert(productVariantImageToUpdate),
       ]);
-    }
-    else 
-    this.productVariantImageRepository.save(productVariantImageToUpdate) ;
-    
+    } else this.productVariantImageRepository.save(productVariantImageToUpdate);
   }
 
   @Transactional()

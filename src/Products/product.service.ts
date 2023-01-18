@@ -129,6 +129,15 @@ export class productService {
       if (!existdProductDetail) {
         removeProductDetails.push(exitsProductDetailItem.id);
       }
+      else {
+        this.productDetailRepository.update(exitsProduct.id, {
+          lang: exitsProductDetailItem.lang,
+          name: exitsProductDetailItem.name,
+          description: exitsProductDetailItem.description,
+          shortDescription: exitsProductDetailItem.shortDescription,
+          slug: exitsProductDetailItem.slug,
+        });
+      }
     });
 
     // if dto don't exits on db - insert
