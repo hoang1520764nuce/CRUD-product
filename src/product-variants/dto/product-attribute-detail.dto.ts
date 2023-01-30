@@ -1,5 +1,6 @@
+import { PartialType } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsString } from "class-validator";
+import { IsEnum, IsNumber, IsString } from "class-validator";
 import { langEnum } from "src/common/enums/lang.enum";
 
 export class ProductAttributeDetailDto {
@@ -19,4 +20,11 @@ export class ProductAttributeDetailDto {
     @IsString()
     @ApiProperty({ default: 'description' })
     description: string;
+}
+
+export class UpdateProductAttributeDetailDto extends  ProductAttributeDetailDto{
+
+    @IsNumber()
+    @ApiProperty({ default: 1 , required : false})
+    id: number;
 }

@@ -6,7 +6,7 @@ import { ProductCategory } from '../../Products/entities/product-category.entity
 @Entity()
 export class Category extends BaseEntity {
   @PrimaryGeneratedColumn()
-  key: string;
+  key: number;
 
   //join in product-categories
   @OneToMany(

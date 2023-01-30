@@ -59,7 +59,7 @@ export class productService {
         slug: inputed.slug,
       }),
     );
-   
+
     const productCategory = categoryKeys.map((inputed) =>
       this.productCategoryRepository.create({
         productId: product.id,
@@ -77,8 +77,9 @@ export class productService {
   }
 
   @Transactional()
-  async updateProduct(id: string, dto: UpdateProductDto) {
+  async updateProduct(dto: UpdateProductDto) {
     const {
+      id,
       type,
       status,
       isFeatured,
@@ -116,37 +117,27 @@ export class productService {
   private async updateProductDetail(
     exitsProduct: Product,
     updateProductDetailsDto: UpdateProductDetailDto[],
-    productDetails: ProductDetail[],
+    exitsProductDetails: ProductDetail[],
   ) {
     // array to hold id in order to remove
-    const removeProductDetails: string[] = [];
-    const insertProductDetails: UpdateProductDetailDto[] = [];
+    const removeProductDetails: number[] = [];
+    const insertProductDetails: ProductDetail[] = [];
+    const updateProductDetails: Partial<ProductDetail>[] = [];
     // if old field don't exits on dto - remove
-    productDetails.forEach((exitsProductDetailItem) => {
-      const existdProductDetail = updateProductDetailsDto.some((item) => {
-        return item.lang === exitsProductDetailItem.lang;
+    exitsProductDetails.forEach((dataInDb) => {
+      const isExitsInDto = updateProductDetailsDto.some((dataInDto) => {
+        return dataInDb.id === dataInDto.id;
       });
-      if (!existdProductDetail) {
-        removeProductDetails.push(exitsProductDetailItem.id);
-      }
-      else {
-        this.productDetailRepository.update(exitsProduct.id, {
-          lang: exitsProductDetailItem.lang,
-          name: exitsProductDetailItem.name,
-          description: exitsProductDetailItem.description,
-          shortDescription: exitsProductDetailItem.shortDescription,
-          slug: exitsProductDetailItem.slug,
-        });
+      if (!isExitsInDto) {
+        removeProductDetails.push(dataInDb.id);
       }
     });
 
     // if dto don't exits on db - insert
-    updateProductDetailsDto.forEach(async (item) => {
-      const isExistInDB = exitsProduct.productDetails.some(
-        (exitsProductDetailItem) => {
-          return item.lang === exitsProductDetailItem.lang;
-        },
-      );
+    updateProductDetailsDto.forEach(async (dateInDto) => {
+      const isExistInDB = exitsProduct.productDetails.some((dataInDb) => {
+        return dateInDto.id === dataInDb.id;
+      });
 
       const productDetail = this.productDetailRepository.findBy({
         id: exitsProduct.id,
@@ -161,82 +152,94 @@ export class productService {
         insertProductDetails.push(
           this.productDetailRepository.create({
             productId: exitsProduct.id,
-            lang: item.lang,
-            name: item.name,
-            description: item.description,
-            shortDescription: item.shortDescription,
-            slug: item.slug,
+            lang: dateInDto.lang,
+            name: dateInDto.name,
+            description: dateInDto.description,
+            shortDescription: dateInDto.shortDescription,
+            slug: dateInDto.slug,
+          }),
+        );
+      } else {
+        updateProductDetails.push(
+          this.productDetailRepository.create({
+            id: dateInDto.id,
+            lang: dateInDto.lang,
+            name: dateInDto.name,
+            description: dateInDto.description,
+            shortDescription: dateInDto.shortDescription,
+            slug: dateInDto.slug,
           }),
         );
       }
     });
 
-    // if user input no change --> do Nothing
-    if(removeProductDetails.length)
-    {await Promise.all([
-      this.productDetailRepository.softDelete(removeProductDetails),
-      this.productDetailRepository.insert(insertProductDetails),
-    ]);}
-    else 
-    this.productDetailRepository.save(insertProductDetails)
-
-    // await this.productDetailRepository.softDelete(removeProductDetails);
-    // await this.productDetailRepository.insert(insertProductDetails);
+    // if user's input no change --> do Nothing
+    if (removeProductDetails.length) {
+      await Promise.all([
+        // delete
+        this.productDetailRepository.softDelete(removeProductDetails),
+        // update
+        ...updateProductDetails.map((item) =>
+          this.productDetailRepository.update(item.id, item),
+        ),
+        // insert
+        this.productDetailRepository.save(insertProductDetails),
+      ]);
+    } else {
+      await Promise.all([
+        // update
+        ...updateProductDetails.map((item) => {
+          this.productDetailRepository.update(item.id, item);
+        }),
+        // insert
+        this.productDetailRepository.save(insertProductDetails),
+      ]);
+    }
   }
 
-  private async updateProductCategory(    
+  private async updateProductCategory(
     exitsProduct: Product,
-    categoryKeys: string[],
+    categoryKeys: number[],
     productCategories: ProductCategory[],
   ) {
-    const removeProductCategories: string[] = [];
+    const removeProductCategories: number[] = [];
     const insertProductCategories: ProductCategory[] = [];
-    // if old field don't exits on dto - remove
+   //delete all
 
-    productCategories.forEach((exitsProductCategoryItem) => {
-      const existdProductCategory = categoryKeys.some((item) => {
-        return item === exitsProductCategoryItem.categoryKey;
-      });
-      
-      if (!existdProductCategory) {
-        removeProductCategories.push(exitsProductCategoryItem.id);
-      }
+    productCategories.forEach((dataInDb) => {
+      removeProductCategories.push(dataInDb.id);   
     });
-    
-    // if dto don't exits on db - insert
-    categoryKeys.forEach(async (item) => {
-      const isExistInDB = productCategories.some((exitsProductCategoryItem) => {
-        return item === exitsProductCategoryItem.categoryKey;
+
+    // insert again 
+   for ( const item in categoryKeys) {
+      const category = this.categoryRepository.findBy({
+        key: categoryKeys[item],
       });
-
-      const [category] = await this.categoryRepository.findBy({ key: item });
-
-      if (!category) {
+      if (!category)
         throw new HttpException(
           'cannot find the category',
           HttpStatus.NOT_FOUND,
         );
-      }
 
-      if (!isExistInDB) {
-        insertProductCategories.push(
-          this.productCategoryRepository.create({
-            productId: exitsProduct.id,
-            categoryKey: item,
-          }),
-        );
-      }
-    });
+      insertProductCategories.push(
+        this.productCategoryRepository.create({
+          productId: exitsProduct.id,
+          categoryKey: categoryKeys[item],
+        }),
+      );
+
+    }
 
     //  if user input no change data --> doNothing
-  
-    if(removeProductCategories.length)
-    {await Promise.all([
-      this.productCategoryRepository.softDelete(removeProductCategories),
-      // insert new feild  - old field no change
-      this.productCategoryRepository.insert(insertProductCategories),
-    ]);}
-    else this.productCategoryRepository.save(insertProductCategories)
+   
+      
+    if (removeProductCategories.length) {
+      await Promise.all([
+        this.productCategoryRepository.softDelete(removeProductCategories),
+        // insert new feild  - old field no change
+       this.productCategoryRepository.save(insertProductCategories),
+      ]);
+    } else this.productCategoryRepository.save(insertProductCategories);
   }
 
   async findAll(dto: ProductPagenationDto) {
@@ -252,7 +255,7 @@ export class productService {
     return paginate(productQueryBuilder, { limit, page });
   }
 
-  async findById(id: string) {
+  async findById(id: number) {
     const product = await this.productRepository.find({
       relations: {
         productDetails: true,
@@ -266,7 +269,7 @@ export class productService {
   }
 
   @Transactional()
-  async softDeleteProduct(id: string) {
+  async softDeleteProduct(id: number) {
     const [product] = await this.productRepository.findBy({ id: id });
     if (!product)
       throw new HttpException('cannot find the product', HttpStatus.NOT_FOUND);

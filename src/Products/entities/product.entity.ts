@@ -21,7 +21,7 @@ import { ProductToVariant } from 'src/product-variants/entities/product-to-varia
 export class Product extends BaseEntity {
 
   @PrimaryGeneratedColumn()
-  id: string;
+  id: number;
 
   @Column({ type: 'enum', enum: ProductType })
   type: ProductType;

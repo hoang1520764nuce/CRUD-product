@@ -45,42 +45,99 @@ export class CategoryService {
   }
 
   @Transactional()
-  async updateCategory(categoryKey: string, dto: UpdateCategoryReqDto) {
-    const { categoryDetailReqDto } = dto;
+  async updateCategory( dto: UpdateCategoryReqDto) {
+    const { key ,categoryDetailReqDto } = dto;
     const [existCategory] = await this.categoryRepository.find({
-      where: { key: categoryKey },
+      where: { key: key },
       relations: { categoryDetails: true },
     });
 
     if (!existCategory)
       throw new HttpException('cannot find the category', HttpStatus.NOT_FOUND);
-    else return this.updateCategoryDetail(existCategory, categoryDetailReqDto);
+    else return this.updateCategoryDetail(existCategory, existCategory.categoryDetails ,categoryDetailReqDto);
   }
 
   private async updateCategoryDetail(
     existCategory: Category,
-    categoryDto: CategoryDetailReqDto[],
+    categoryDetails : CategoryDetail[],
+    updateCategoryDetail: CategoryDetailReqDto[],
   ) {
-    const removeCategoryDetail: CategoryDetailReqDto[] = [];
-    existCategory.categoryDetails.forEach((categoryDetail) => {
-      const findCategoryDetail = categoryDto.some(
-        (inputed) => inputed.lang === categoryDetail.lang,
-      );
-      if (!findCategoryDetail) removeCategoryDetail.push(categoryDetail);
+     const removeCategoryDetails : number[] = [];
+     const insertCategoryDetails : CategoryDetail[] = [] ;
+     const updateCategoryDetails : Partial<CategoryDetail>[] = [] ;
+     categoryDetails.forEach((dataInDb) => {
+      const isExitsInDto = updateCategoryDetail.some((dataInDto) => {
+        return dataInDb.categoryKey === dataInDto.categoryKey;
+      });
+      if (!isExitsInDto) {
+        removeCategoryDetails.push(dataInDb.categoryKey);
+      }
     });
 
-    const updateCategory = categoryDto.map((inputFromDto) =>
-      this.categoryDetailRepository.create({
-        categoryKey: existCategory.key,
-        lang: inputFromDto.lang,
-        desc: inputFromDto.desc,
-        name: inputFromDto.name,
-        slug: inputFromDto.slug,
-      }),
-    );
+    // if dto don't exits on db - insert
+    updateCategoryDetail.forEach(async (dateInDto) => {
+      const isExistInDB = existCategory.categoryDetails.some((dataInDb) => {
+        return dateInDto.categoryKey === dataInDb.categoryKey;
+      });
 
-    await this.categoryDetailRepository.softRemove(removeCategoryDetail);
-    await this.categoryDetailRepository.save(updateCategory);
+      const categoryDetail = this.categoryDetailRepository.findBy({
+        categoryKey : existCategory.key,
+      });
+      if (!categoryDetail)
+        throw new HttpException(
+          'cannot find the Category detail',
+          HttpStatus.NOT_FOUND,
+        );
+
+      if (!isExistInDB) {
+        insertCategoryDetails.push(
+          this.categoryDetailRepository.create({
+            categoryKey: existCategory.key,
+            lang: dateInDto.lang,
+            desc: dateInDto.desc,
+            name: dateInDto.name,
+            slug: dateInDto.slug,
+
+          }),
+        );
+      } else {
+        updateCategoryDetails.push(
+          this.categoryDetailRepository.create({
+            categoryKey: existCategory.key,
+            lang: dateInDto.lang,
+            desc: dateInDto.desc,
+            name: dateInDto.name,
+            slug: dateInDto.slug,
+          }),
+        );
+      }
+    });
+    console.log('updateCategoryDetail',updateCategoryDetail);
+    console.log('insertCategoryDetails',insertCategoryDetails);
+    console.log('updateCategoryDetails',updateCategoryDetails);
+    // if user's input no change --> do Nothing
+    console.log(removeCategoryDetails.length);
+    console.log(updateCategoryDetails.length);
+    if (removeCategoryDetails.length && updateCategoryDetails.length) {
+      await Promise.all([
+        // delete
+        this.categoryDetailRepository.softDelete(removeCategoryDetails),
+        // update
+        console.log('update') ,
+        ...updateCategoryDetail.map((item) =>
+          this.categoryDetailRepository.update(item.categoryKey, item),
+        ),
+        // insert
+        this.categoryDetailRepository.insert(insertCategoryDetails),
+      ]);
+    } else {
+      await Promise.all([
+        // insert
+        this.categoryDetailRepository.insert(insertCategoryDetails),
+      ]);
+    }
+   
+     
   }
 
   async findAll(dto: CategoryPagenationDto) {
@@ -93,7 +150,7 @@ export class CategoryService {
     return paginate(CategoryQB, { limit, page });
   }
 
-  async findById(key: string) {
+  async findById(key: number) {
     const [category] = await this.categoryRepository.find({
       where: { key: key },
       relations: { categoryDetails: true },
@@ -104,7 +161,7 @@ export class CategoryService {
   }
 
   @Transactional()
-  async deleteCategory(key: string) {
+  async deleteCategory(key: number) {
     const [category] = await this.categoryRepository.find({
       where: { key },
       relations: { categoryDetails: true },

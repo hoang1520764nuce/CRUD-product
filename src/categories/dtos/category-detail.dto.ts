@@ -5,7 +5,7 @@ import { langCategoryDetailEnum } from "../enums/category-detail.enum";
 export class CategoryDetailReqDto {
 
     @IsString( )
-    categoryKey : string
+    categoryKey : number
 
     @IsEnum(langCategoryDetailEnum)
     lang : langCategoryDetailEnum;

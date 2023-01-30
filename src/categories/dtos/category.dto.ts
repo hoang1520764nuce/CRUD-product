@@ -1,13 +1,13 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsObject, IsString } from 'class-validator';
+import { IsNumber, IsObject, IsString } from 'class-validator';
 import { CategoryDetailReqDto } from './category-detail.dto';
 export class CreateCategoryReqDto {
   @ApiProperty({
     type: [CategoryDetailReqDto],
     isArray: true,
     default: [
-      {
+      { 
         lang: 'eng',
         desc: 'homethings',
         name: 'fan',
@@ -20,11 +20,17 @@ export class CreateCategoryReqDto {
 }
 
 export class UpdateCategoryReqDto  {
+
+  @ApiProperty({required : false})
+  @IsNumber()
+  key: number;
+
   @ApiProperty({
     type: [CategoryDetailReqDto],
     isArray: true,
     default: [
       {
+        categoryKey : 1 ,
         lang: 'eng',
         desc: 'homethings',
         name: 'fan',

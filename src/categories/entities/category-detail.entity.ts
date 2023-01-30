@@ -1,4 +1,4 @@
-import {  JoinColumn, Column, PrimaryColumn, Entity, ManyToOne } from "typeorm";
+import {  JoinColumn, Column, PrimaryColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { langCategoryDetailEnum } from "../enums/category-detail.enum";
 import { Category } from "./category.entity";
 import { BaseEntity } from 'src/common/entities/base.entity';
@@ -6,10 +6,13 @@ import { BaseEntity } from 'src/common/entities/base.entity';
 @Entity()
 export class CategoryDetail extends BaseEntity {
 
-  @PrimaryColumn({name : 'category_key'})
-  categoryKey: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  @PrimaryColumn()
+  @Column({name : 'category_key'})
+  categoryKey: number;
+
+  @Column()
   lang: langCategoryDetailEnum;
 
   @Column()

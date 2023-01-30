@@ -35,17 +35,17 @@ export class productController {
   }
 
   @Get('getBy:id')
-  getOne(@Param('id') id: string) {
+  getOne(@Param('id') id: number) {
     return this.productService.findById(id);
   }
 
-  @Put('updateProductBy:id')
-  updateProduct(@Param('id') id: string, @Body() body: UpdateProductDto) {
-    return this.productService.updateProduct(id, body);
+  @Put('updateProductById')
+  updateProduct( @Body() body: UpdateProductDto) {
+    return this.productService.updateProduct(body);
   }
 
   @Delete('RemoveProductBy:id')
-  deleteProduct(@Param('id') id: string) {
+  deleteProduct(@Param('id') id: number) {
     return this.productService.softDeleteProduct(id);
   }
 

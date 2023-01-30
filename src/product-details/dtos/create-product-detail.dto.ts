@@ -1,10 +1,10 @@
-import { IsEnum, IsString } from "class-validator"
+import { IsEnum, IsNumber, IsString } from "class-validator"
 import { ProductDetailsLanguage } from "../enums/product-details.enum"
 
 export class CreateProductDetailDto {
     
-    @IsString()
-    productId: string 
+    @IsNumber()
+    productId: number 
 
     @IsEnum( ProductDetailsLanguage )
     lang:ProductDetailsLanguage

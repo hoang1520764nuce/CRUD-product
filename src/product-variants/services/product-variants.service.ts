@@ -83,9 +83,9 @@ export class ProductVariantsService {
       relations: { productToVariants: true, productVariantImages: true },
     });
 
-    console.log(productVariant);
+    // console.log(productVariant);
     if (!productVariant) {
-      console.log('fail to update productVariant');
+      // console.log('fail to find productVariant');
     }
 
     const updateProductVariant = {
@@ -96,7 +96,7 @@ export class ProductVariantsService {
       salePrice: salePrice,
       onSale: onSale,
     };
-    await this.productVariantRepository.save(updateProductVariant);
+    await this.productVariantRepository.update(updateProductVariant.id,updateProductVariant);
 
     await this.updateProductToVariant(
       productIds,
@@ -107,73 +107,50 @@ export class ProductVariantsService {
     await this.updateProductVariantImage(
       fileIds,
       productVariant.id,
-      productVariant,
+      productVariant.productVariantImages,
     );
   }
 
   private async updateProductToVariant(
     productIds: number[],
     productVariantId: number,
-    productToVariants: ProductToVariant[],
+    exitsProductToVariants: ProductToVariant[],
   ) {
-    console.log(productIds, productVariantId, productToVariants);
 
-    const [productToVariant] = await this.productToVariantRepository.findBy({
-      productId: In(productIds),
-    });
-    if (!productToVariant) {
-      console.log('fail to update productToVariant - not found');
-    }
     const productToVariantToRemove: number[] = [];
-    const productToVariantToUpdate: ProductToVariant[] = [];
+    const productToVariantToInsert: ProductToVariant[] = [];
 
-    productToVariants.forEach((exitsProductToVariant) => {
-      const isExistInDto = productIds.some((inputedProductId) => {
-        console.log(inputedProductId);
-        console.log(exitsProductToVariant.productId);
-        return inputedProductId === exitsProductToVariant.productId;
-      });
-      console.log(isExistInDto);
-
-      if (isExistInDto === false) {
-        console.log('haahahahha');
+    exitsProductToVariants.forEach((exitsProductToVariant) => {
         productToVariantToRemove.push(exitsProductToVariant.id);
-      }
-      console.log(productToVariantToRemove);
     });
 
-    productIds.forEach(async (inputedProductId) => {
-      const isExistInDB = productToVariants.some((exitsProductToVariant) => {
-        return inputedProductId === exitsProductToVariant.productId;
-      });
+    for ( const item in productIds) {
 
-      const [product] = await this.productRepository.findBy({
-        id: String(inputedProductId),
+      const [products] = await this.productRepository.findBy({
+        id: In(productIds),
       });
-
-      if (!product) {
+      if (!products) {
         throw new HttpException(
-          'cannot find the product',
+          'cannot find the products',
           HttpStatus.NOT_FOUND,
         );
       }
 
-      if (!isExistInDB) {
-        productToVariantToUpdate.push(
-          this.productToVariantRepository.create({
-            productId: inputedProductId,
-            productVariantId: productVariantId,
-          }),
-        );
-      }
-    });
+      productToVariantToInsert.push(
+        this.productToVariantRepository.create({
+          productId: productIds[item],
+          productVariantId: productVariantId,
+        }),
+      );
+
+    }
     //  if user input no change data --> doNothing
     if (!productToVariantToRemove.length) {
-      this.productToVariantRepository.save(productToVariantToUpdate);
+      this.productToVariantRepository.save(productToVariantToInsert);
     } else {
       await Promise.all([
         this.productToVariantRepository.softDelete(productToVariantToRemove),
-        this.productToVariantRepository.insert(productToVariantToUpdate),
+        this.productToVariantRepository.save(productToVariantToInsert),
       ]);
     }
   }
@@ -181,57 +158,45 @@ export class ProductVariantsService {
   private async updateProductVariantImage(
     fileIds: number[],
     productVariantId: number,
-    productVariant: ProductVariant,
+    exitsProductVariantImages: ProductVariantImage[],
   ) {
     const [productVariantImage] =
       await this.productVariantImageRepository.findBy({ imageId: In(fileIds) });
     if (!productVariantImage) {
-      console.log('fail to update productVariantImage - not found');
+      // console.log('fail to update productVariantImage - not found');
     }
     const productVariantImageToRemove: number[] = [];
-    const productVariantImageToUpdate: ProductVariantImage[] = [];
-    const productVariantImages: ProductVariantImage[] =
-      productVariant.productVariantImages;
-    productVariantImages.forEach((exitsProductVariantImage) => {
-      const isExistInDto = fileIds.some((inputedFileId) => {
-        return inputedFileId === exitsProductVariantImage.imageId;
+    const productVariantImageToInsert: ProductVariantImage[] = [];
+    
+    exitsProductVariantImages.forEach((exitsProductVariantImage) => {
+      productVariantImageToRemove.push(exitsProductVariantImage.id);
+    });
+
+    for ( const item in fileIds) {
+      const [file] = await this.fileRepository.findBy({
+        id: In(fileIds),
       });
-
-      if (!isExistInDto) {
-        productVariantImageToRemove.push(exitsProductVariantImage.id);
+      if (!file) {
+        throw new HttpException('cannot find the file', HttpStatus.NOT_FOUND);
       }
-    });
-    fileIds.forEach(async (inputedFileId) => {
-      const isExistInDB = productVariant.productVariantImages.some(
-        (exitsProductVariantImage) => {
-          return inputedFileId === exitsProductVariantImage.imageId;
-        },
+
+      productVariantImageToInsert.push(
+        this.productVariantImageRepository.create({
+          imageId: fileIds[item],
+          productVariantId: productVariantId,
+        }),
       );
+    }
 
-      const [image] = await this.fileRepository.findBy({ id: inputedFileId });
-
-      if (!image) {
-        throw new HttpException('cannot find the image', HttpStatus.NOT_FOUND);
-      }
-
-      if (!isExistInDB) {
-        productVariantImageToUpdate.push(
-          this.productVariantImageRepository.create({
-            imageId: inputedFileId,
-            productVariantId: productVariantId,
-          }),
-        );
-      }
-    });
     //  if user input no change data --> doNothing
     if (productVariantImageToRemove.length) {
       await Promise.all([
         this.productVariantImageRepository.softDelete(
           productVariantImageToRemove,
         ),
-        this.productVariantImageRepository.insert(productVariantImageToUpdate),
+        this.productVariantImageRepository.save(productVariantImageToInsert),
       ]);
-    } else this.productVariantImageRepository.save(productVariantImageToUpdate);
+    } else this.productVariantImageRepository.save(productVariantImageToInsert);
   }
 
   @Transactional()
@@ -240,7 +205,7 @@ export class ProductVariantsService {
       id: id,
     });
     if (!productVariant) {
-      console.log('fail to delete productVariant - cannot find');
+      // console.log('fail to delete productVariant - cannot find');
     }
     await this.productVariantRepository.softDelete(id);
 
@@ -249,14 +214,14 @@ export class ProductVariantsService {
     });
 
     if (!productToVariant) {
-      console.log('fail to delete productToVariant - cannot find');
+      // console.log('fail to delete productToVariant - cannot find');
     }
     await this.productToVariantRepository.softDelete(productToVariant.id);
 
     const [productVariantImage] =
       await this.productVariantImageRepository.findBy({ productVariantId: id });
     if (!productVariantImage) {
-      console.log('fail to delete productVariantImage - cannot find');
+      // console.log('fail to delete productVariantImage - cannot find');
     }
     await this.productVariantImageRepository.softDelete(productVariantImage.id);
   }
@@ -268,7 +233,7 @@ export class ProductVariantsService {
       id: In(ids),
     });
     if (!productVariants) {
-      console.log('fail to delete productVariants - cannot find');
+      // console.log('fail to delete productVariants - cannot find');
     }
     await this.productVariantRepository.softRemove(productVariants);
 
@@ -276,7 +241,7 @@ export class ProductVariantsService {
       productVariantId: In(ids),
     });
     if (!productToVariants) {
-      console.log('fail to delete productToVariants - cannot find');
+      // console.log('fail to delete productToVariants - cannot find');
     }
 
     await this.productToVariantRepository.softRemove(productToVariants);
@@ -286,7 +251,7 @@ export class ProductVariantsService {
         productVariantId: In(ids),
       });
     if (!productVariantImages) {
-      console.log('fail to delete productVariantImages - cannot find');
+      // console.log('fail to delete productVariantImages - cannot find');
     }
     await this.productVariantImageRepository.softRemove(productVariantImages);
   }
@@ -315,7 +280,7 @@ export class ProductVariantsService {
       where: { id: id },
     });
     if (!productVariant) {
-      console.log('fail to find productVariant - cannot find');
+      // console.log('fail to find productVariant - cannot find');
     }
     return productVariant;
   }

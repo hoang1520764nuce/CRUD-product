@@ -6,10 +6,10 @@ import { ProductDetailsLanguage } from "../enums/product-details.enum";
 @Entity()
 export class ProductDetail  extends BaseEntity {
     @PrimaryGeneratedColumn()
-    id: string
+    id: number
 
     @Column({ name: 'product_id'})
-    productId: string 
+    productId: number 
 
     @Column({type: 'enum', enum : ProductDetailsLanguage})
     lang:ProductDetailsLanguage

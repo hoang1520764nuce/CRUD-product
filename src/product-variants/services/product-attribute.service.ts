@@ -6,8 +6,14 @@ import { Product } from 'src/products/entities/product.entity';
 import { In, Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { deleteListProductAttributeDto } from '../dto/delete-list-product-attribute.dto';
-import { ProductAttributeDetailDto } from '../dto/product-attribute-detail.dto';
-import { CreateProductAttributeDto } from '../dto/product-attribute.dto';
+import {
+  ProductAttributeDetailDto,
+  UpdateProductAttributeDetailDto,
+} from '../dto/product-attribute-detail.dto';
+import {
+  CreateProductAttributeDto,
+  UpdateProductAttributeDto,
+} from '../dto/product-attribute.dto';
 import { ProductAttributeDetail } from '../entities/product-attribute-datail.entity';
 import { ProductAttributeTermDetail } from '../entities/product-attribute-term-detail.entity';
 import { ProductAttributeTerm } from '../entities/product-attribute-term.entity';
@@ -55,133 +61,177 @@ export class ProductAttributeService {
     productAttribute.productAttributeDetails = productAttributeDetail;
   }
 
-    @Transactional()
-    async updateProductAttribute(key: number, dto: CreateProductAttributeDto) {
-        const { type, hasAchives, productAttributeDetails } = dto;
+  @Transactional()
+  async updateProductAttribute(key: number, dto: UpdateProductAttributeDto) {
+    const { type, hasAchives, updateProductAttributeDetails } = dto;
 
-        const exitsProductAttribute = await this.productAttributeRepository.findOne({
-            where: { key : key },
-            relations: ['productAttributeDetails'],
-        });
+    const exitsProductAttribute = await this.productAttributeRepository.findOne(
+      {
+        where: { key: key },
+        relations: ['productAttributeDetails'],
+      },
+    );
 
-        if(!exitsProductAttribute) 
-        {
-            console.log('cannot find product attribute');
-        }
-
-        const updateProductAttribute = this.productAttributeRepository.create({
-            type,
-            hasAchives,
-        })
-
-        await this.productAttributeRepository.update(key, updateProductAttribute);
-
-        await this.updateProductAttributeDetail(exitsProductAttribute , productAttributeDetails);
+    if (!exitsProductAttribute) {
+      console.log('cannot find product attribute');
     }
 
-    private async updateProductAttributeDetail( exitsProductAttribute : ProductAttribute ,productAttributeDetails : ProductAttributeDetailDto[] ){
+    const updateProductAttribute = this.productAttributeRepository.create({
+      type,
+      hasAchives,
+    });
 
-           const productAttributeDetailToRemove : number[] = [] ;
-           const productAttributeDetailToUpdate : ProductAttributeDetail[] = [] ;
+    await this.productAttributeRepository.update(key, updateProductAttribute);
 
-              exitsProductAttribute.productAttributeDetails.forEach((item) => {
-                const isExistInDto = productAttributeDetails.some((dtoItem) => dtoItem.lang === item.lang);
-                if (!isExistInDto) {
-                    productAttributeDetailToRemove.push(item.id);
-                    }
-            });
+    await this.updateProductAttributeDetail(
+      exitsProductAttribute,
+      updateProductAttributeDetails,
+    );
+  }
 
-            productAttributeDetails.forEach(async(item) => {
-                const isExistInDb = exitsProductAttribute.productAttributeDetails.some(
-                    (dbItem) => dbItem.lang === item.lang,
-                );
-                if (!isExistInDb) {
-                    
-                    productAttributeDetailToUpdate.push(
-                        this.productAttributeDetailRepository.create({
-                            productAttributeKey: exitsProductAttribute.key,
-                            lang: item.lang,
-                            name: item.name,
-                            slug: item.slug,
-                            description: item.description,
-                        }),
-                    );
-                }
-            }
+  private async updateProductAttributeDetail(
+    exitsProductAttribute: ProductAttribute,
+    updateProductAttributeDetailsDto: UpdateProductAttributeDetailDto[],
+  ) {
+    const productAttributeDetailToRemove: number[] = [];
+    const productAttributeDetailToUpdate: Partial<ProductAttributeDetail>[] =
+      [];
+    const productAttributeDetailToInsert: ProductAttributeDetail[] = [];
+
+    exitsProductAttribute.productAttributeDetails.forEach((dataInDb) => {
+      const isExitsInDto = updateProductAttributeDetailsDto.some((dataInDto) => {
+        return dataInDb.id === dataInDto.id;
+      });
+
+      if (!isExitsInDto) {
+        productAttributeDetailToRemove.push(dataInDb.id);
+      }
+
+     
+  } )
+
+    updateProductAttributeDetailsDto.forEach((dataInDto) => {
+      const isExitsInDb = exitsProductAttribute.productAttributeDetails.some(
+        (dataInDb) => {
+          return dataInDb.id === dataInDto.id;
+        },
+      );
+
+      if (isExitsInDb) {
+        productAttributeDetailToUpdate.push(
+          this.productAttributeDetailRepository.create({
+            id: dataInDto.id,
+            lang: dataInDto.lang,
+            name: dataInDto.name,
+            slug: dataInDto.slug,
+            description: dataInDto.description,
+          }),
         );
-// date no change - do nothing
-        if(productAttributeDetailToRemove.length)
-        {
-            await Promise.all([
-                 this.productAttributeDetailRepository.softDelete(productAttributeDetailToRemove),
-                 this.productAttributeDetailRepository.insert(productAttributeDetailToUpdate),
-            ])
-           
-    }
-        else this.productAttributeDetailRepository.save(productAttributeDetailToUpdate) ;
-    } 
-    
+      } else {
+        productAttributeDetailToInsert.push(
+          this.productAttributeDetailRepository.create({
+            productAttributeKey: exitsProductAttribute.key,
+            lang: dataInDto.lang,
+            name: dataInDto.name,
+            slug: dataInDto.slug,
+            description: dataInDto.description,
+          }),
+        );
+      }
+    } )
 
-    async findAll(dto : ProductAttributePagenationDto){
-        const { limit , page } = dto ;
-
-        const productAttributeQB = this.productAttributeRepository
-        .createQueryBuilder('productAttribute')
-        .leftJoinAndSelect('productAttribute.productAttributeDetails', 'productAttributeDetails')
-
-        return paginate(productAttributeQB, { limit,page})
-    } 
-    
-
-    async findOne(key : number){
-        const productAttribute = await this.productAttributeRepository
-        .createQueryBuilder('productAttribute')
-        .leftJoinAndSelect('productAttribute.productAttributeDetails', 'productAttributeDetails')
-        .where('productAttribute.key = :key', { key : key })
-        .getOne();
-
-        if(!productAttribute)
-        {
-            throw new Error('cannot find product attribute');
-        }
-
-        return productAttribute ;
+    if (productAttributeDetailToRemove.length) {
+      await Promise.all([
+        // delete
+        this.productAttributeDetailRepository.softDelete(productAttributeDetailToRemove),
+        // update
+        ...productAttributeDetailToUpdate.map((item) =>
+          this.productAttributeDetailRepository.update(item.id, item),
+        ),
+        // insert
+        this.productAttributeDetailRepository.save(productAttributeDetailToInsert),
+      ]);
+    } else {
+      await Promise.all([
+        // update
+        ...productAttributeDetailToUpdate.map((item) => {
+          this.productAttributeDetailRepository.update(item.id, item);
+        }),
+        // insert
+        this.productAttributeDetailRepository.save(productAttributeDetailToInsert),
+      ]);
     }
 
-    @Transactional()
-    async softRemove(key : number){
-        const productAttribute = await this.productAttributeRepository.findOneBy(
-            {key : key});
-        if(!productAttribute)
-        {
-            throw new Error('cannot find product attribute');
-        }
+  }
 
-        const productAttributeDetails = await this.productAttributeDetailRepository.find({
-            where: { productAttributeKey : key },
-        });
-        await this.productAttributeRepository.softDelete(key);
-        await this.productAttributeDetailRepository.softRemove(productAttributeDetails);
+  async findAll(dto: ProductAttributePagenationDto) {
+    const { limit, page } = dto;
 
+    const productAttributeQB = this.productAttributeRepository
+      .createQueryBuilder('productAttribute')
+      .leftJoinAndSelect(
+        'productAttribute.productAttributeDetails',
+        'productAttributeDetails',
+      );
 
+    return paginate(productAttributeQB, { limit, page });
+  }
+
+  async findOne(key: number) {
+    const productAttribute = await this.productAttributeRepository
+      .createQueryBuilder('productAttribute')
+      .leftJoinAndSelect(
+        'productAttribute.productAttributeDetails',
+        'productAttributeDetails',
+      )
+      .where('productAttribute.key = :key', { key: key })
+      .getOne();
+
+    if (!productAttribute) {
+      throw new Error('cannot find product attribute');
     }
 
-    @Transactional()
-    async softListRemove(dto : deleteListProductAttributeDto){
-        const { keys }  = dto ;
-        const productAttribute = await this.productAttributeRepository.findBy(
-            {key : In(keys)});
+    return productAttribute;
+  }
 
-        if(!productAttribute)
-        {
-            console.log('cannot find product attribute');
-        }
-
-        const productAttributeDetails = await this.productAttributeDetailRepository.find({
-            where: { productAttributeKey : In(keys) },
-        });
-
-        await this.productAttributeRepository.softDelete(keys);
-        await this.productAttributeDetailRepository.softRemove(productAttributeDetails);
+  @Transactional()
+  async softRemove(key: number) {
+    const productAttribute = await this.productAttributeRepository.findOneBy({
+      key: key,
+    });
+    if (!productAttribute) {
+      throw new Error('cannot find product attribute');
     }
+
+    const productAttributeDetails =
+      await this.productAttributeDetailRepository.find({
+        where: { productAttributeKey: key },
+      });
+    await this.productAttributeRepository.softDelete(key);
+    await this.productAttributeDetailRepository.softRemove(
+      productAttributeDetails,
+    );
+  }
+
+  @Transactional()
+  async softListRemove(dto: deleteListProductAttributeDto) {
+    const { keys } = dto;
+    const productAttribute = await this.productAttributeRepository.findBy({
+      key: In(keys),
+    });
+
+    if (!productAttribute) {
+      console.log('cannot find product attribute');
+    }
+
+    const productAttributeDetails =
+      await this.productAttributeDetailRepository.find({
+        where: { productAttributeKey: In(keys) },
+      });
+
+    await this.productAttributeRepository.softDelete(keys);
+    await this.productAttributeDetailRepository.softRemove(
+      productAttributeDetails,
+    );
+  }
 }

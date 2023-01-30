@@ -18,7 +18,7 @@ export class ProductDetailsService {
     private productRepo: Repository<Product>,
   ) {}
 
-  async create(dto: CreateProductDetailDto, productId: string) {
+  async create(dto: CreateProductDetailDto, productId: number) {
     const { lang, name, description, shortDescription, slug } = dto;
     const productDetail = this.productDetailRepo.create({
       productId,

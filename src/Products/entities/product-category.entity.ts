@@ -13,13 +13,13 @@ import { Category } from '../../categories/entities/category.entity';
 export class ProductCategory extends BaseEntity {
 
   @PrimaryGeneratedColumn()
-  id : string
+  id : number
 
   @Column({ name: 'product_id' })
-  productId: string;
+  productId: number;
 
   @Column({ name: 'category_key' })
-  categoryKey: string;
+  categoryKey: number;
 
   // join product
   @ManyToOne(() => Product, (product) => product.productCategories)
