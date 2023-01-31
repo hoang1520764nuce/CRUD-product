@@ -16,6 +16,7 @@ import {
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { ProductCategory } from 'src/Products/entities/product-category.entity';
 import { ProductToVariant } from 'src/product-variants/entities/product-to-variant.entity';
+import { CartLineItem } from 'src/carts/entities/cart-line-item.entity';
 
 @Entity({ name: 'product' })
 export class Product extends BaseEntity {
@@ -58,4 +59,9 @@ export class Product extends BaseEntity {
   @JoinColumn()
   productToVariants: ProductToVariant[];
   // end join
+
+  // join cartLineItem
+  @OneToMany(() => CartLineItem, (cartLineItem) => cartLineItem.product)
+  @JoinColumn()
+  cartLineItems: CartLineItem[];
 }

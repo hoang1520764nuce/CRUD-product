@@ -147,7 +147,7 @@ export class ProductAttributeTermService {
     if (removeProductAttributeTermDetails.length) {
       await Promise.all([
         // delete
-        this.productAttributeTermDetailRepository.softDelete(
+        this.productAttributeTermDetailRepository.softDelete(                                       
           removeProductAttributeTermDetails,
         ),
         // update

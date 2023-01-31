@@ -26,6 +26,9 @@ import { ProductAttributeDetail } from './product-variants/entities/product-attr
 import { ProductAttributeTerm } from './product-variants/entities/product-attribute-term.entity';
 import { ProductAttribute } from './product-variants/entities/product-attribute.entity';
 import { ProductAttributeTermDetail } from './product-variants/entities/product-attribute-term-detail.entity';
+import { CartsModule } from './carts/carts.module';
+import { Cart } from './carts/entities/cart.entity';
+import { CartLineItem } from './carts/entities/cart-line-item.entity';
 
 
 @Module({
@@ -54,6 +57,8 @@ import { ProductAttributeTermDetail } from './product-variants/entities/product-
             ProductAttributeTerm,
             ProductAttribute,
             ProductAttributeTermDetail,
+            Cart,
+            CartLineItem
           ],
           autoLoadEntities: true,
           synchronize: true,
@@ -71,6 +76,7 @@ import { ProductAttributeTermDetail } from './product-variants/entities/product-
     CategoryModule,
     ProductDetailsModule,
     ProductVariantsModule,
+    CartsModule,
     
   ],
 })

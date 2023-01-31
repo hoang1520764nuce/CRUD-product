@@ -11,9 +11,8 @@ import {
 import { Category } from '../../categories/entities/category.entity';
 @Entity()
 export class ProductCategory extends BaseEntity {
-
   @PrimaryGeneratedColumn()
-  id : number
+  id: number;
 
   @Column({ name: 'product_id' })
   productId: number;
