@@ -5,6 +5,10 @@ import { langEnum } from "src/common/enums/lang.enum";
 export class ProductAttributeTermDetailDto {
 
     @IsNumber()
+    @ApiProperty({ default : 1 , required : false})
+    id : number ;
+
+    @IsNumber()
     @ApiProperty({ default : 1 })
     productAttributeTermId : number;
 

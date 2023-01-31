@@ -134,17 +134,17 @@ export class productService {
     });
 
     // if dto don't exits on db - insert
-    updateProductDetailsDto.forEach(async (dateInDto) => {
+    updateProductDetailsDto.forEach(async (dataInDto) => {
       const isExistInDB = exitsProduct.productDetails.some((dataInDb) => {
-        return dateInDto.id === dataInDb.id;
+        return dataInDto.id === dataInDb.id;
       });
 
-      const productDetail = this.productDetailRepository.findBy({
+      const product = await this.productDetailRepository.findBy({
         id: exitsProduct.id,
       });
-      if (!productDetail)
+      if (!product)
         throw new HttpException(
-          'cannot find the product detail',
+          'cannot find the product',
           HttpStatus.NOT_FOUND,
         );
 
@@ -152,22 +152,22 @@ export class productService {
         insertProductDetails.push(
           this.productDetailRepository.create({
             productId: exitsProduct.id,
-            lang: dateInDto.lang,
-            name: dateInDto.name,
-            description: dateInDto.description,
-            shortDescription: dateInDto.shortDescription,
-            slug: dateInDto.slug,
+            lang: dataInDto.lang,
+            name: dataInDto.name,
+            description: dataInDto.description,
+            shortDescription: dataInDto.shortDescription,
+            slug: dataInDto.slug,
           }),
         );
       } else {
         updateProductDetails.push(
           this.productDetailRepository.create({
-            id: dateInDto.id,
-            lang: dateInDto.lang,
-            name: dateInDto.name,
-            description: dateInDto.description,
-            shortDescription: dateInDto.shortDescription,
-            slug: dateInDto.slug,
+            id: dataInDto.id,
+            lang: dataInDto.lang,
+            name: dataInDto.name,
+            description: dataInDto.description,
+            shortDescription: dataInDto.shortDescription,
+            slug: dataInDto.slug,
           }),
         );
       }
