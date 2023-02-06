@@ -12,7 +12,10 @@ import { ProductDetailsModule } from './product-details/product-details.module';
 import { ProductDetail } from './product-details/entities/product-detail.entity';
 
 import { DataSource } from 'typeorm';
-import { addTransactionalDataSource } from 'typeorm-transactional';
+import {
+  addTransactionalDataSource,
+  initializeTransactionalContext,
+} from 'typeorm-transactional';
 import { CategoryDetail } from './categories/entities/category-detail.entity';
 import { ProductCategory } from './Products/entities/product-category.entity';
 import { ProductVariantsModule } from './product-variants/product-variants.module';
@@ -29,55 +32,16 @@ import { ProductAttributeTermDetail } from './product-variants/entities/product-
 import { CartsModule } from './carts/carts.module';
 import { Cart } from './carts/entities/cart.entity';
 import { CartLineItem } from './carts/entities/cart-line-item.entity';
-
+import dataSource, { dataSourceOptions } from 'data-source';
 
 @Module({
   imports: [
-    TypeOrmModule.forRootAsync({
-      useFactory() {
-        return {
-          type: 'postgres',
-          host: 'localhost',
-          port: 5433,
-          username: 'postgres',
-          password: '123123',
-          database: 'product',
-          entities: [
-            Product,
-            ProductDetail,
-            Category,
-            CategoryDetail,
-            ProductCategory,
-            ProductToVariant,
-            ProductVariant,
-            ProductVariantImage,
-            File,
-            ProductToAttribute,
-            ProductAttributeDetail,
-            ProductAttributeTerm,
-            ProductAttribute,
-            ProductAttributeTermDetail,
-            Cart,
-            CartLineItem
-          ],
-          autoLoadEntities: true,
-          synchronize: true,
-        };
-      },
-      async dataSourceFactory(options) {
-        if (!options) {
-          throw new Error('Invalid options passed');
-        }
-
-        return addTransactionalDataSource(new DataSource(options));
-      },
-    }),
+    TypeOrmModule.forRoot(dataSourceOptions),
     ProductModule,
     CategoryModule,
     ProductDetailsModule,
     ProductVariantsModule,
     CartsModule,
-    
   ],
 })
 export class AppModule {}

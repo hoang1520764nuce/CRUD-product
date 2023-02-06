@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
+import { UpdateCartLineItemDto } from './dto/cart-line-item.dto';
 import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
 import { CartLineItem } from './entities/cart-line-item.entity';
@@ -56,15 +57,90 @@ export class CartsService {
         cartLineItems : { product : true },
     },
     where: {
-      userId: id,
+      id: id,
     },
     })
 
     return cart;
   }
+  
+@Transactional()
+ async update(userId: number, updateCartDto: UpdateCartDto) {
+      const {id , cartLineItemsDto} = updateCartDto ;
 
-  update(id: number, updateCartDto: UpdateCartDto) {
-    return `This action updates a #${id} cart`;
+      const exitsCart = await this.cartRepository.findOne({
+        where : {id : id},
+        relations : { cartLineItems :{product : true}  },
+      });
+
+          
+
+        await this.cartRepository.update(id,{userId})
+
+        await this.updateCartLineItem(cartLineItemsDto , exitsCart , exitsCart.cartLineItems);
+  }
+
+  private async updateCartLineItem(cartLineItemsDto : UpdateCartLineItemDto[] , 
+    exitsCart : Cart ,
+     exitsCartLineItems : CartLineItem[]) {
+
+    const removeCartLineItems : number[] = [];
+    const updateCartLineItems : Partial<CartLineItem>[] = [];
+    const insertCartLineItems : CartLineItem[] = [];
+    exitsCartLineItems.forEach(dataInDb =>
+      {
+        const isExitsInDto = cartLineItemsDto.some( dataInDto => dataInDto.id === dataInDb.id );
+
+        if(!isExitsInDto) {
+          removeCartLineItems.push(dataInDb.id);
+        }
+      }
+       )
+
+    cartLineItemsDto.forEach(dataInDto => {
+      const isExitsInDb = exitsCartLineItems.some( dataInDb => dataInDto.id === dataInDb.id );
+
+      if(!isExitsInDb) {
+        insertCartLineItems.push(
+          this.cartLineItemRepository.create({
+            cartId: exitsCart.id,
+            productId: dataInDto.productId,
+          })
+        )
+      }
+      else {
+        updateCartLineItems.push(
+          this.cartLineItemRepository.create({
+            id: dataInDto.id,
+            cartId: exitsCart.id,
+            productId: dataInDto.productId,
+          })
+        )
+      }})
+      console.log('updateCartLineItems',updateCartLineItems);
+      if (removeCartLineItems.length) {
+        console.log('onif');
+        await Promise.all([
+          // delete
+          this.cartLineItemRepository.softDelete(removeCartLineItems),
+          // update
+          ...updateCartLineItems.map((item) =>
+            this.cartLineItemRepository.update(item.id, item),
+          ),
+          // insert
+          this.cartLineItemRepository.save(insertCartLineItems),
+        ]);
+      } else {
+        console.log('else'),
+        await Promise.all([
+          // update
+          ...updateCartLineItems.map((item) => {
+            this.cartLineItemRepository.update(item.id, item);
+          }),
+          // insert
+          this.cartLineItemRepository.save(insertCartLineItems),
+        ]);
+      }
   }
 
   remove(id: number) {

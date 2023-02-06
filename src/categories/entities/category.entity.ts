@@ -3,7 +3,7 @@ import { Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { CategoryDetail } from './category-detail.entity';
 import { ProductCategory } from '../../Products/entities/product-category.entity';
 
-@Entity()
+@Entity({name : 'category'})
 export class Category extends BaseEntity {
   @PrimaryGeneratedColumn()
   key: number;

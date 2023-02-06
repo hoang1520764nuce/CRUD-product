@@ -9,7 +9,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Category } from '../../categories/entities/category.entity';
-@Entity()
+@Entity({name : 'product_category'})
 export class ProductCategory extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -27,7 +27,7 @@ export class ProductCategory extends BaseEntity {
   //endjoin
 
   // join category
-  @ManyToOne(() => Category, (category) => category.categorieProducts)
+  @ManyToOne(() => Category , (category) => category.categorieProducts)
   @JoinColumn({ name: 'category_key' })
   category: Category;
   //endjoin
